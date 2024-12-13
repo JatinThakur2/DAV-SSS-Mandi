@@ -32,11 +32,11 @@ export const routes = [
     element: <HomePage />,
   },
   {
-    path: "/AboutPage",
+    path: "/about",
     element: <AboutPage />,
     children: [
       {
-        path: "AboutDAV",
+        path: "dav-mandi",
         element: <AboutDAV />,
       },
       {

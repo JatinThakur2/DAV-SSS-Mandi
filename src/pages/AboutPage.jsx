@@ -3,7 +3,7 @@ import { Container, Typography, Paper } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 // About Page
-export function AboutPage() {
+function AboutPage() {
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>
       <Typography variant="h3" gutterBottom>
@@ -18,3 +18,4 @@ export function AboutPage() {
     </Container>
   );
 }
+export default AboutPage();

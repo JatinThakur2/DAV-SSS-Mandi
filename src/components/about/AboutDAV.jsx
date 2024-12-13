@@ -3,7 +3,7 @@ import { Container, Typography, Paper } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 // About Page
-export function AboutDAV() {
+function AboutDAV() {
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>
       <Typography variant="h3" gutterBottom>
@@ -18,3 +18,4 @@ export function AboutDAV() {
     </Container>
   );
 }
+export default AboutDAV();

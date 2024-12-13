@@ -196,12 +196,7 @@ function Navbar() {
           </React.Fragment>
         ))}
 
-        <ListItem
-          button
-          component={Link}
-          to="/GalleryPage"
-          onClick={toggleDrawer}
-        >
+        <ListItem button component={Link} to="/gallery" onClick={toggleDrawer}>
           <ListItemText primary="Gallery" />
         </ListItem>
         <ListItem button component={Link} to="/contact" onClick={toggleDrawer}>
