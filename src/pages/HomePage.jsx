@@ -15,44 +15,6 @@ function HomePage() {
       <HomeCarousel />
 
       <Container maxWidth="lg" sx={{ my: 4 }}>
-        <Grid container spacing={4}>
-          {/* Latest News Section */}
-          <Grid xs={12} md={8}>
-            <Typography variant="h4" gutterBottom>
-              Latest News & Notices
-            </Typography>
-            <LatestNewsSection />
-          </Grid>
-
-          {/* Quick Links or About Us Card */}
-          <Grid xs={12} md={4}>
-            <Card sx={{ height: "100%" }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  About DAV SSS Mandi
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  D.A.V. Senior Secondary School, Mandi is committed to
-                  providing quality education and holistic development to
-                  students.
-                </Typography>
-                <Typography variant="body2">
-                  Established with a vision to nurture young minds and prepare
-                  them for future challenges.
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {/* Principal's Message */}
-        <Box sx={{ my: 4 }}>
-          <Typography variant="h4" gutterBottom align="center">
-            Principal's Message
-          </Typography>
-          <PrincipalMessage />
-        </Box>
-
         {/* Welcome Section */}
         <Card sx={{ my: 4, p: 3 }}>
           <CardContent>
@@ -71,6 +33,39 @@ function HomePage() {
             </Typography>
           </CardContent>
         </Card>
+        <Grid container spacing={4}>
+          {/* Latest News Section */}
+          <Grid xs={12} md={8}>
+            <Typography variant="h4" gutterBottom>
+              Latest News & Notices
+            </Typography>
+            <LatestNewsSection />
+          </Grid>
+        </Grid>
+
+        <Card sx={{ height: "100%" }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              About DAV SSS Mandi
+            </Typography>
+            <Typography variant="body2" paragraph>
+              D.A.V. Senior Secondary School, Mandi is committed to providing
+              quality education and holistic development to students.
+            </Typography>
+            <Typography variant="body2">
+              Established with a vision to nurture young minds and prepare them
+              for future challenges.
+            </Typography>
+          </CardContent>
+        </Card>
+
+        {/* Principal's Message */}
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h4" gutterBottom align="left">
+            From Principal’s Desk
+          </Typography>
+          <PrincipalMessage />
+        </Box>
       </Container>
     </Box>
   );

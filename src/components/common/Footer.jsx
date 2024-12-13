@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Container, Grid, Typography, Link, Divider } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Box, Container, Typography, Link, Divider } from "@mui/material";
+import Grid from "@mui/material/Grid2";
+import GoogleMapLocation from "../common/GoogleMapsLocation"; // Import the reusable map component
 
 function Footer() {
   const importantLinks = [
@@ -33,11 +34,16 @@ function Footer() {
       <Container maxWidth="lg">
         <Grid
           container
-          spacing={4}
-          sx={{
-            textAlign: { xs: "center", md: "left" },
-          }}
+          spacing={12}
+          alignItems="flex-start" // Align to top (left-aligned on mobile)
+          justifyContent="flex-start" // Align to the left
+          textAlign="left" // Ensure text is left-aligned on mobile
         >
+          {/* Google Map Section */}
+          <Grid item xs={12} md={4}>
+            <GoogleMapLocation title="Our Location" height="250px" />
+          </Grid>
+          {/* Contact Us Section */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
               Contact Us
@@ -58,6 +64,7 @@ function Footer() {
             </Typography>
           </Grid>
 
+          {/* Important Links Section */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
               Important Links
@@ -65,8 +72,8 @@ function Footer() {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: { xs: "column", md: "column" },
-                alignItems: { xs: "center", md: "flex-start" },
+                flexDirection: "column",
+                alignItems: "flex-start", // Left-align the links
               }}
             >
               {importantLinks.map((link) => (
@@ -79,7 +86,7 @@ function Footer() {
                   sx={{
                     textDecoration: "none",
                     "&:hover": { textDecoration: "underline" },
-                    my: { xs: 0.5, md: 0 },
+                    my: 0.5,
                   }}
                 >
                   {link.name}
@@ -87,46 +94,11 @@ function Footer() {
               ))}
             </Box>
           </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6" gutterBottom>
-              Quick Navigation
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "column" },
-                alignItems: { xs: "center", md: "flex-start" },
-              }}
-            >
-              {[
-                { name: "Home", path: "/" },
-                { name: "About", path: "/about" },
-                { name: "Admission", path: "/admission" },
-                { name: "Gallery", path: "/gallery" },
-                { name: "Contact", path: "/contact" },
-              ].map((item) => (
-                <Link
-                  key={item.name}
-                  component={RouterLink}
-                  to={item.path}
-                  color="inherit"
-                  sx={{
-                    textDecoration: "none",
-                    "&:hover": { textDecoration: "underline" },
-                    my: { xs: 0.5, md: 0 },
-                  }}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </Box>
-          </Grid>
         </Grid>
 
+        {/* Divider and Copyright */}
         <Divider sx={{ my: 3, backgroundColor: "white" }} />
-
-        <Typography variant="body2" align="center">
+        <Typography variant="body2" align="left">
           © {new Date().getFullYear()} D.A.V Senior Secondary School, Mandi. All
           Rights Reserved.
         </Typography>
