@@ -10,10 +10,10 @@ import {
 function PrincipalMessage() {
   return (
     <Box>
-      <Stack container spacing={4} direction="row">
+      <Stack container spacing={4} direction={{ xs: "column", sm: "row" }}>
         {/* Card 1: Information about the Principal */}
 
-        <Card sx={{ width: "42%" }}>
+        <Card sx={{ width: { xs: "100%", sm: "42%" } }}>
           <CardContent>
             <Stack direction="column" alignItems="center" spacing={2}>
               <CardMedia
@@ -49,7 +49,7 @@ function PrincipalMessage() {
 
         {/* Card 2: Message from the Principal */}
 
-        <Card sx={{ width: "56%" }}>
+        <Card sx={{ width: { xs: "100%", sm: "56%" } }}>
           <CardContent>
             <Typography variant="body1">Dear Readers,</Typography>
             <Typography variant="body1">

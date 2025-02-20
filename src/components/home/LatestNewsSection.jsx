@@ -42,7 +42,7 @@ const notices = [
 const LatestNewsSection = () => {
   return (
     <Box sx={{ my: 4 }}>
-      <Stack container spacing={4} direction="row">
+      <Stack container spacing={4} direction={{ xs: "column", sm: "row" }}>
         {/* Latest News Card */}
         <Stack item xs={12} md={4}>
           <Card>
