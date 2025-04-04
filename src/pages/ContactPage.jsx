@@ -1,6 +1,24 @@
 import React from "react";
-import { Box, Container, Typography, Card, CardContent } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import {
+  Box,
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Grid,
+  Paper,
+  Divider,
+} from "@mui/material";
+import {
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  LocationOn as LocationIcon,
+  Send as SendIcon,
+} from "@mui/icons-material";
+import GoogleMapLocation from "../components/common/GoogleMapsLocation";
+
 function ContactPage() {
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>
@@ -12,44 +30,130 @@ function ContactPage() {
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Contact Details */}
+        {/* Contact Information */}
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h5" gutterBottom>
-                D.A.V Senior Secondary School
+                School Address
               </Typography>
-              <Typography variant="body1" paragraph>
-                Near Victoria Bridge, Mandi, District Mandi, H.P. - 175001
+
+              <Box sx={{ display: "flex", alignItems: "flex-start", mt: 2 }}>
+                <LocationIcon color="primary" sx={{ mr: 2, mt: 0.5 }} />
+                <Typography variant="body1">
+                  D.A.V Senior Secondary School, <br />
+                  Near Victoria bridge, Mandi, <br />
+                  District Mandi, H.P. - 175001
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
+                <EmailIcon color="primary" sx={{ mr: 2 }} />
+                <Typography variant="body1">
+                  <a
+                    href="mailto:davsss.mnd@gmail.com"
+                    style={{
+                      color: "inherit",
+                      textDecoration: "none",
+                      borderBottom: "1px dotted",
+                    }}
+                  >
+                    davsss.mnd@gmail.com
+                  </a>
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+                <PhoneIcon color="primary" sx={{ mr: 2 }} />
+                <Typography variant="body1">
+                  <a
+                    href="tel:01905-223145"
+                    style={{
+                      color: "inherit",
+                      textDecoration: "none",
+                      borderBottom: "1px dotted",
+                    }}
+                  >
+                    01905-223145
+                  </a>
+                </Typography>
+              </Box>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* Contact Form */}
+              <Typography variant="h5" gutterBottom>
+                Send us a Message
               </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Email:</strong> davsss.mnd@gmail.com
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Phone:</strong> 01905-223145
-              </Typography>
+
+              <Box component="form" sx={{ mt: 2 }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      label="Full Name"
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      label="Email Address"
+                      variant="outlined"
+                      type="email"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      label="Subject"
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      label="Your Message"
+                      variant="outlined"
+                      multiline
+                      rows={4}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      endIcon={<SendIcon />}
+                      fullWidth
+                      sx={{ mt: 1 }}
+                    >
+                      Send Message
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Google Map */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h5" gutterBottom>
                 Our Location
               </Typography>
-              <Box sx={{ mt: 2 }}>
-                <iframe
-                  title="Google Map Location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3483.394552332948!2d76.91739047682247!3d31.708644775796065!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3904c5f5bfc4c6a3%3A0x3322e5aa2bd22d63!2sD.A.V.%20Senior%20Secondary%20School%2C%20Mandi!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
-                  width="100%"
-                  height="300"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
+              <Typography variant="body2" paragraph>
+                We are conveniently located near Victoria Bridge in Mandi. You
+                can find us on the map below:
+              </Typography>
+              <Box sx={{ mt: 2, height: "calc(100% - 80px)" }}>
+                <GoogleMapLocation height="450px" />
               </Box>
             </CardContent>
           </Card>

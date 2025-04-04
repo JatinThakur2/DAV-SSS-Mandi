@@ -18,4 +18,5 @@ function AboutPage() {
     </Container>
   );
 }
-export default AboutPage();
+
+export default AboutPage;

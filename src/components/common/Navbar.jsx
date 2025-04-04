@@ -20,9 +20,10 @@ import {
   ExpandLess,
   ExpandMore,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Navbar() {
+  const location = useLocation();
   const [anchorEls, setAnchorEls] = useState({
     about: null,
     administration: null,
@@ -61,7 +62,7 @@ function Navbar() {
       label: "About",
       anchorKey: "about",
       subItems: [
-        { label: "About DAV Mandi", path: "/about/AboutDAV" },
+        { label: "About DAV Mandi", path: "/about/about-dav" },
         { label: "Vision & Mission", path: "/about/vision-mission" },
         { label: "Facilities", path: "/about/facilities" },
       ],
@@ -95,6 +96,14 @@ function Navbar() {
     },
   ];
 
+  // Check if a path is active (for highlighting active links)
+  const isActive = (path) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
   const renderDesktopMenu = () => (
     <Box
       sx={{
@@ -126,13 +135,26 @@ function Navbar() {
       <Box sx={{ display: "flex", alignItems: "center" }}>
         {menuItems.map((menu) => (
           <div key={menu.label}>
-            <Button onClick={handleMenuOpen(menu.anchorKey)} color="inherit">
+            <Button
+              onClick={handleMenuOpen(menu.anchorKey)}
+              color="inherit"
+              sx={{
+                borderBottom: isActive("/" + menu.anchorKey)
+                  ? "2px solid white"
+                  : "none",
+                borderRadius: 0,
+                mx: 0.5,
+              }}
+            >
               {menu.label}
             </Button>
             <Menu
               anchorEl={anchorEls[menu.anchorKey]}
               open={Boolean(anchorEls[menu.anchorKey])}
               onClose={handleMenuClose(menu.anchorKey)}
+              MenuListProps={{
+                "aria-labelledby": `${menu.anchorKey}-button`,
+              }}
             >
               {menu.subItems.map((item) => (
                 <MenuItem
@@ -140,6 +162,7 @@ function Navbar() {
                   onClick={handleMenuClose(menu.anchorKey)}
                   component={Link}
                   to={item.path}
+                  selected={location.pathname === item.path}
                 >
                   {item.label}
                 </MenuItem>
@@ -147,10 +170,28 @@ function Navbar() {
             </Menu>
           </div>
         ))}
-        <Button color="inherit" component={Link} to="/gallery">
+        <Button
+          color="inherit"
+          component={Link}
+          to="/gallery"
+          sx={{
+            borderBottom: isActive("/gallery") ? "2px solid white" : "none",
+            borderRadius: 0,
+            mx: 0.5,
+          }}
+        >
           Gallery
         </Button>
-        <Button color="inherit" component={Link} to="/contact">
+        <Button
+          color="inherit"
+          component={Link}
+          to="/contact"
+          sx={{
+            borderBottom: isActive("/contact") ? "2px solid white" : "none",
+            borderRadius: 0,
+            mx: 0.5,
+          }}
+        >
           Contact
         </Button>
       </Box>
@@ -159,7 +200,7 @@ function Navbar() {
 
   const renderMobileMenu = () => (
     <Drawer anchor="left" open={mobileOpen} onClose={toggleDrawer}>
-      <List>
+      <List sx={{ width: 250 }}>
         <ListItem button component={Link} to="/" onClick={toggleDrawer}>
           <ListItemText primary="Home" />
         </ListItem>
@@ -187,6 +228,7 @@ function Navbar() {
                     to={item.path}
                     onClick={toggleDrawer}
                     sx={{ pl: 4 }}
+                    selected={location.pathname === item.path}
                   >
                     <ListItemText primary={item.label} />
                   </ListItem>
@@ -196,10 +238,22 @@ function Navbar() {
           </React.Fragment>
         ))}
 
-        <ListItem button component={Link} to="/gallery" onClick={toggleDrawer}>
+        <ListItem
+          button
+          component={Link}
+          to="/gallery"
+          onClick={toggleDrawer}
+          selected={isActive("/gallery")}
+        >
           <ListItemText primary="Gallery" />
         </ListItem>
-        <ListItem button component={Link} to="/contact" onClick={toggleDrawer}>
+        <ListItem
+          button
+          component={Link}
+          to="/contact"
+          onClick={toggleDrawer}
+          selected={isActive("/contact")}
+        >
           <ListItemText primary="Contact" />
         </ListItem>
       </List>

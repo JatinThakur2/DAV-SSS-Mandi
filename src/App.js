@@ -1,5 +1,9 @@
 import React, { Suspense } from "react";
-import { BrowserRouter as Router, useRoutes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  useRoutes,
+  useLocation,
+} from "react-router-dom";
 import { ThemeProvider, CssBaseline, LinearProgress, Box } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 
@@ -60,16 +64,30 @@ function Loader() {
   );
 }
 
+// Scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 // Main App Routing Component
 function AppRoutes() {
   const routing = useRoutes(routes);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <ScrollToTop />
       <Navbar />
-      <Suspense fallback={<Loader />}>
-        <ErrorBoundary>{routing}</ErrorBoundary>
-      </Suspense>
+      <Box sx={{ flex: 1, my: 2 }}>
+        <Suspense fallback={<Loader />}>
+          <ErrorBoundary>{routing}</ErrorBoundary>
+        </Suspense>
+      </Box>
       <Footer />
     </Box>
   );
@@ -106,6 +124,38 @@ const theme = createTheme({
         root: {
           borderRadius: 12,
           boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 8,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            backgroundColor: "rgba(25, 118, 210, 0.08)",
+          },
+          "&.Mui-selected:hover": {
+            backgroundColor: "rgba(25, 118, 210, 0.12)",
+          },
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            backgroundColor: "rgba(25, 118, 210, 0.08)",
+          },
+          "&.Mui-selected:hover": {
+            backgroundColor: "rgba(25, 118, 210, 0.12)",
+          },
         },
       },
     },

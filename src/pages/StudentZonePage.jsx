@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Typography, Paper } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
-export function StudentZonePage() {
+function StudentZonePage() {
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>
       <Typography variant="h3" gutterBottom>
@@ -17,3 +17,5 @@ export function StudentZonePage() {
     </Container>
   );
 }
+
+export default StudentZonePage;

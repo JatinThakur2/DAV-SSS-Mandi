@@ -36,7 +36,11 @@ export const routes = [
     element: <AboutPage />,
     children: [
       {
-        path: "dav-mandi",
+        path: "",
+        element: <AboutDAV />, // Default child route
+      },
+      {
+        path: "about-dav", // This matches the Navbar item "About DAV Mandi"
         element: <AboutDAV />,
       },
       {
@@ -54,6 +58,10 @@ export const routes = [
     element: <StaffPage />,
     children: [
       {
+        path: "", // Default child route
+        element: <TeachingStaff />,
+      },
+      {
         path: "teaching-staff",
         element: <TeachingStaff />,
       },
@@ -68,6 +76,10 @@ export const routes = [
     element: <AdmissionPage />,
     children: [
       {
+        path: "", // Default child route
+        element: <AdmissionRules />,
+      },
+      {
         path: "rules",
         element: <AdmissionRules />,
       },
@@ -81,6 +93,10 @@ export const routes = [
     path: "/student-zone",
     element: <StudentZonePage />,
     children: [
+      {
+        path: "", // Default child route
+        element: <Scholarship />,
+      },
       {
         path: "scholarship",
         element: <Scholarship />,
