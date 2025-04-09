@@ -1,6 +1,6 @@
 import React from "react";
-import { Typography, Box, Paper, Card, CardContent } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import { Typography, Box, Grid, Card, CardContent } from "@mui/material";
+
 import {
   Computer as ComputerIcon,
   LocalLibrary as LibraryIcon,

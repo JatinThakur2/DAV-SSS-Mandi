@@ -14,8 +14,8 @@ import {
   Card,
   CardContent,
   Divider,
+  Grid,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 import {
   EmojiEvents as AwardIcon,
   School as SchoolIcon,

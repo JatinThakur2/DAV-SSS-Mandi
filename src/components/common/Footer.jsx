@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Container, Typography, Link, Divider } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import { Box, Container, Typography, Link, Divider, Grid } from "@mui/material";
+
 import GoogleMapLocation from "../common/GoogleMapsLocation"; // Import the reusable map component
 
 function Footer() {

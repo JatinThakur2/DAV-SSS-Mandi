@@ -1,6 +1,5 @@
 import React from "react";
-import { Typography, Box, Paper, Divider } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import { Typography, Box, Paper, Grid } from "@mui/material";
 
 function VisionMission() {
   return (

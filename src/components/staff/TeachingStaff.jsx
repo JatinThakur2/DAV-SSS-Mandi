@@ -12,7 +12,6 @@ import {
   Avatar,
   Chip,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 
 function TeachingStaff() {
   // Teaching staff data from the administration.txt file

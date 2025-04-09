@@ -13,9 +13,8 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Chip,
+  Grid,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 import {
   ExpandMore as ExpandMoreIcon,
   School as SchoolIcon,
