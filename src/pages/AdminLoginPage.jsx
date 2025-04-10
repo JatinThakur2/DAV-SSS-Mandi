@@ -1,5 +1,5 @@
 // src/pages/AdminLoginPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -19,8 +19,15 @@ function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,6 +150,13 @@ function AdminLoginPage() {
           <Box sx={{ mt: 4, textAlign: "center" }}>
             <Typography variant="body2" color="text.secondary">
               For access, please contact the school administrator
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mt: 1, p: 1, bgcolor: "#f5f5f5", borderRadius: 1 }}
+            >
+              Demo credentials: admin@davsss.edu.in / admin
             </Typography>
           </Box>
         </Paper>

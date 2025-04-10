@@ -44,9 +44,8 @@ import AdminScholarship from "./AdminScholarship";
 import AdminResults from "./AdminResults";
 import AdminGallery from "./AdminGallery";
 import OmLogo from "../common/OmLogo";
-
 // Import auth context (will be implemented later)
-// import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 function AdminDashboard() {
   const [selectedSection, setSelectedSection] = useState("dashboard");
@@ -56,7 +55,7 @@ function AdminDashboard() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Auth context (to be implemented)
-  // const { currentUser, logout } = useAuth();
+  const { logout } = useAuth();
 
   // Mock user data for now
   const currentUser = {
@@ -74,9 +73,7 @@ function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    // Will be implemented with auth context
-    // logout();
-    console.log("Logging out...");
+    logout();
   };
 
   const toggleMobileDrawer = () => {

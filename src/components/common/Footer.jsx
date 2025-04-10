@@ -351,22 +351,46 @@ function Footer() {
               color="rgba(255,255,255,0.7)"
               fontSize="0.75rem"
             >
-              © {new Date().getFullYear()} D.A.V Senior Secondary School, Mandi.
-              All Rights Reserved.
+              © {new Date().getFullYear()} D.A.V Senior Secondary School,
+              Mandi. All Rights Reserved.
             </Typography>
           </Grid>
           <Grid item>
-            <Typography
-              variant="body2"
-              color="rgba(255,255,255,0.7)"
-              fontSize="0.75rem"
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+              }}
             >
-              Designed with{" "}
-              <Box component="span" sx={{ color: "#ff6b00" }}>
-                ♥
-              </Box>{" "}
-              for DAV community (Jatin Thakur)
-            </Typography>
+              <Typography
+                variant="body2"
+                color="rgba(255,255,255,0.7)"
+                fontSize="0.75rem"
+              >
+                Designed with{" "}
+                <Box component="span" sx={{ color: "#ff6b00" }}>
+                  ♥
+                </Box>{" "}
+                for DAV community (Jatin Thakur)
+              </Typography>
+              <Link
+                component={RouterLink}
+                to="/admin/login"
+                color="rgba(255,255,255,0.7)"
+                sx={{
+                  fontSize: "0.75rem",
+                  textDecoration: "none",
+                  "&:hover": {
+                    color: "white",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                Admin Login
+              </Link>
+            </Box>
           </Grid>
         </Grid>
       </Container>

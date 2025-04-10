@@ -1,7 +1,6 @@
 // src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "../convex/_generated/react";
 
 // Create Auth Context
 const AuthContext = createContext(null);
@@ -21,23 +20,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Convex mutations and queries
-  const loginMutation = useMutation("auth:login");
-  const getCurrentUser = useQuery("auth:getCurrentUser", {
-    userId: localStorage.getItem("userId") || undefined,
-  });
-
   // Check if user is logged in on initial load
   useEffect(() => {
     const checkLoggedInStatus = async () => {
       try {
-        // If we have user data from Convex
-        if (getCurrentUser) {
-          setCurrentUser(getCurrentUser);
+        // Check if user data exists in localStorage
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+
+        if (userId && token) {
+          // For now, we'll just use localStorage data as our user
+          // In a real app, you'd verify this with your backend
+          setCurrentUser({
+            userId,
+            token,
+            name: "DAV Admin",
+            email: "admin@davsss.edu.in",
+            role: "admin",
+          });
         } else {
           setCurrentUser(null);
-          localStorage.removeItem("userId");
-          localStorage.removeItem("token");
         }
       } catch (error) {
         console.error("Auth check failed:", error);
@@ -48,21 +50,32 @@ export function AuthProvider({ children }) {
     };
 
     checkLoggedInStatus();
-  }, [getCurrentUser]);
+  }, []);
 
-  // Login function
+  // Login function - simplified for now
   const login = async (email, password) => {
     try {
       setLoading(true);
-      // Call Convex login mutation
-      const response = await loginMutation({ email, password });
 
-      // If login successful, store user info
-      if (response) {
-        localStorage.setItem("userId", response.userId);
-        localStorage.setItem("token", response.token);
-        setCurrentUser(response);
-        return response;
+      // Simple credential check (obviously not secure, just for demo)
+      if (email === "admin@davsss.edu.in" && password === "admin") {
+        const mockUserId = "admin-user-id";
+        const mockToken = "mock-token-" + Date.now();
+
+        localStorage.setItem("userId", mockUserId);
+        localStorage.setItem("token", mockToken);
+
+        setCurrentUser({
+          userId: mockUserId,
+          token: mockToken,
+          name: "DAV Admin",
+          email: email,
+          role: "admin",
+        });
+
+        return { success: true };
+      } else {
+        throw new Error("Invalid email or password");
       }
     } catch (error) {
       console.error("Login error:", error);

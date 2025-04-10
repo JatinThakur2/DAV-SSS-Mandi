@@ -33,8 +33,9 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from "@mui/icons-material";
-import { useMutation, useQuery } from "../../convex/_generated/react";
-import { useAuth } from "../../contexts/AuthContext";
+
+// Import from our custom hooks file instead of the generated one
+import { useMutation, useQuery } from "../../convex/hooks";
 
 function AdminNews() {
   const [openDialog, setOpenDialog] = useState(false);
@@ -47,10 +48,30 @@ function AdminNews() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [error, setError] = useState("");
 
-  const { currentUser } = useAuth();
+  // Mock news data since Convex queries will return null/empty initially
+  const mockNews = [
+    {
+      _id: "mock-news-1",
+      title: "Annual Sports Day 2024",
+      content:
+        "Join us for the Annual Sports Day, featuring various athletic events.",
+      isPublished: true,
+      date: Date.now() - 86400000, // Yesterday
+      publishedBy: "Admin",
+    },
+    {
+      _id: "mock-news-2",
+      title: "School Annual Day Celebrations",
+      content:
+        "We are excited to celebrate the Annual Day with performances by our talented students.",
+      isPublished: false,
+      date: Date.now() - 172800000, // 2 days ago
+      publishedBy: "Admin",
+    },
+  ];
 
-  // Convex queries and mutations
-  const allNews = useQuery("news:getAll") || [];
+  // Convex queries and mutations with fallbacks to mock data
+  const allNews = useQuery("news:getAll") || mockNews;
   const createNews = useMutation("news:create");
   const updateNews = useMutation("news:update");
   const deleteNews = useMutation("news:remove");
@@ -113,7 +134,7 @@ function AdminNews() {
         // Create new news
         await createNews({
           ...newsFormData,
-          publishedBy: currentUser?.name || "Admin",
+          publishedBy: "Admin", // Hardcoded for now
         });
       }
       handleCloseDialog();

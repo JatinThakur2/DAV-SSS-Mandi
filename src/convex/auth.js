@@ -116,11 +116,11 @@ export const createInitialAdmin = mutation({
       return { message: "Admin users already exist" };
     }
 
-    // Create initial admin user
+    // Create initial admin user with email: admin@davsss.edu.in and password: admin
     const adminId = await ctx.db.insert("users", {
       name: "DAV Admin",
       email: "admin@davsss.edu.in",
-      passwordHash: hashPassword("admin123"), // Change this in production!
+      passwordHash: hashPassword("admin"), // Simple password for demo - secure in production!
       role: "admin",
       createdAt: Date.now(),
       updatedAt: Date.now(),

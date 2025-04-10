@@ -16,6 +16,9 @@ import { routes } from "./routes";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 
+// Import AuthProvider for authentication
+import { AuthProvider } from "./contexts/AuthContext";
+
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -143,7 +146,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </Router>
     </ThemeProvider>
   );

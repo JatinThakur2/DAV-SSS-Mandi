@@ -1,8 +1,7 @@
-// Update imports in routes/index.jsx
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
+import { LinearProgress, Box } from "@mui/material";
 // Lazy load pages to improve initial load performance
 const HomePage = lazy(() => import("../pages/HomePage"));
 const AboutPage = lazy(() => import("../pages/AboutPage"));
@@ -12,6 +11,7 @@ const StudentZonePage = lazy(() => import("../pages/StudentZonePage"));
 const GalleryPage = lazy(() => import("../pages/GalleryPage"));
 const ContactPage = lazy(() => import("../pages/ContactPage"));
 const AdminLoginPage = lazy(() => import("../pages/AdminLoginPage"));
+const AdminSetupPage = lazy(() => import("../pages/AdminSetupPage"));
 const AdminDashboard = lazy(() => import("../components/admin/AdminDashboard"));
 
 // Nested route components
@@ -37,7 +37,18 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <LinearProgress sx={{ width: "50%" }} />
+      </Box>
+    );
   }
 
   if (!isAuthenticated) {
@@ -141,6 +152,10 @@ export const routes = [
   {
     path: "/admin/login",
     element: <AdminLoginPage />,
+  },
+  {
+    path: "/admin/setup",
+    element: <AdminSetupPage />,
   },
   {
     path: "/admin",

@@ -16,6 +16,7 @@ import type {
 import type * as ConvexClientProvider from "../ConvexClientProvider.js";
 import type * as auth from "../auth.js";
 import type * as gallery from "../gallery.js";
+import type * as hooks from "../hooks.js";
 import type * as news from "../news.js";
 import type * as notices from "../notices.js";
 import type * as scholarship from "../scholarship.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   ConvexClientProvider: typeof ConvexClientProvider;
   auth: typeof auth;
   gallery: typeof gallery;
+  hooks: typeof hooks;
   news: typeof news;
   notices: typeof notices;
   scholarship: typeof scholarship;

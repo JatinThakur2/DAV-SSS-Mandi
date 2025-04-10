@@ -2,7 +2,6 @@
 import { query, mutation, action } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { StorageReader, StorageWriter } from "./_generated/server";
 
 // Get all gallery events
 export const getAllEvents = query({

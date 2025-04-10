@@ -39,8 +39,9 @@ import {
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useMutation, useQuery } from "../../convex/_generated/react";
-import { useAuth } from "../../contexts/AuthContext";
+
+// Import from our custom hooks file instead of the generated one
+import { useMutation, useQuery } from "../../convex/hooks";
 
 function AdminNotices() {
   const [openDialog, setOpenDialog] = useState(false);
@@ -55,10 +56,33 @@ function AdminNotices() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [error, setError] = useState("");
 
-  const { currentUser } = useAuth();
+  // Mock data since Convex queries will return null initially
+  const mockNotices = [
+    {
+      _id: "mock-notice-1",
+      title: "Summer Vacation Notice",
+      content:
+        "School will be closed for summer vacation from June 1st to July 15th.",
+      isImportant: true,
+      isPublished: true,
+      date: Date.now() - 86400000, // Yesterday
+      expiryDate: Date.now() + 2592000000, // 30 days in the future
+      publishedBy: "Admin",
+    },
+    {
+      _id: "mock-notice-2",
+      title: "Parent-Teacher Meeting",
+      content: "Parent-Teacher Meeting scheduled for May 15th at 10 AM.",
+      isImportant: false,
+      isPublished: true,
+      date: Date.now() - 172800000, // 2 days ago
+      expiryDate: Date.now() + 1296000000, // 15 days in the future
+      publishedBy: "Admin",
+    },
+  ];
 
-  // Convex queries and mutations
-  const allNotices = useQuery("notices:getAll") || [];
+  // Convex queries and mutations with fallbacks to mock data
+  const allNotices = useQuery("notices:getAll") || mockNotices;
   const createNotice = useMutation("notices:create");
   const updateNotice = useMutation("notices:update");
   const deleteNotice = useMutation("notices:remove");
@@ -145,7 +169,7 @@ function AdminNotices() {
           isImportant: noticeFormData.isImportant,
           isPublished: noticeFormData.isPublished,
           expiryDate: expiryTimestamp,
-          publishedBy: currentUser?.name || "Admin",
+          publishedBy: "Admin", // Hardcoded for now
         });
       }
       handleCloseDialog();
