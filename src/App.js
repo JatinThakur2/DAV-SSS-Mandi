@@ -5,7 +5,9 @@ import {
   useLocation,
 } from "react-router-dom";
 import { ThemeProvider, CssBaseline, LinearProgress, Box } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
+
+// Import custom theme
+import theme from "./themes/theme";
 
 // Import routes configuration
 import { routes } from "./routes";
@@ -77,15 +79,13 @@ function ScrollToTop() {
 
 // Main App Routing Component
 function AppRoutes() {
-  const routing = useRoutes(routes);
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <ScrollToTop />
       <Navbar />
-      <Box sx={{ flex: 1, my: 2 }}>
+      <Box sx={{ flex: 1 }}>
         <Suspense fallback={<Loader />}>
-          <ErrorBoundary>{routing}</ErrorBoundary>
+          <ErrorBoundary>{useRoutes(routes)}</ErrorBoundary>
         </Suspense>
       </Box>
       <Footer />
@@ -93,77 +93,52 @@ function AppRoutes() {
   );
 }
 
-// Theme Configuration
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#1976d2", // Deep blue color representing education
-      light: "#42a5f5",
-      dark: "#1565c0",
-    },
-    secondary: {
-      main: "#f50057", // Accent color
-    },
-    background: {
-      default: "#f4f4f4",
-      paper: "#ffffff",
-    },
-  },
-  typography: {
-    fontFamily: "Roboto, Arial, sans-serif",
-    h4: {
-      fontWeight: 600,
-    },
-    body1: {
-      lineHeight: 1.6,
-    },
-  },
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-        },
-      },
-    },
-    MuiMenu: {
-      styleOverrides: {
-        paper: {
-          borderRadius: 8,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        },
-      },
-    },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {
-          "&.Mui-selected": {
-            backgroundColor: "rgba(25, 118, 210, 0.08)",
-          },
-          "&.Mui-selected:hover": {
-            backgroundColor: "rgba(25, 118, 210, 0.12)",
-          },
-        },
-      },
-    },
-    MuiListItem: {
-      styleOverrides: {
-        root: {
-          "&.Mui-selected": {
-            backgroundColor: "rgba(25, 118, 210, 0.08)",
-          },
-          "&.Mui-selected:hover": {
-            backgroundColor: "rgba(25, 118, 210, 0.12)",
-          },
-        },
-      },
-    },
-  },
-});
+// Custom Font Links Component
+// function FontLinks() {
+//   return (
+//     <React.Fragment>
+//       <link rel="preconnect" href="https://fonts.googleapis.com" />
+//       <link
+//         rel="preconnect"
+//         href="https://fonts.gstatic.com"
+//         crossOrigin="anonymous"
+//       />
+//       <link
+//         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+//         rel="stylesheet"
+//       />
+//     </React.Fragment>
+//   );
+// }
 
 // Main App Component
 function App() {
+  React.useEffect(() => {
+    // Add font links to head
+    const linkElement = document.createElement("link");
+    linkElement.rel = "preconnect";
+    linkElement.href = "https://fonts.googleapis.com";
+    document.head.appendChild(linkElement);
+
+    const linkElement2 = document.createElement("link");
+    linkElement2.rel = "preconnect";
+    linkElement2.href = "https://fonts.gstatic.com";
+    linkElement2.crossOrigin = "anonymous";
+    document.head.appendChild(linkElement2);
+
+    const fontLinkElement = document.createElement("link");
+    fontLinkElement.rel = "stylesheet";
+    fontLinkElement.href =
+      "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap";
+    document.head.appendChild(fontLinkElement);
+
+    return () => {
+      document.head.removeChild(linkElement);
+      document.head.removeChild(linkElement2);
+      document.head.removeChild(fontLinkElement);
+    };
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
