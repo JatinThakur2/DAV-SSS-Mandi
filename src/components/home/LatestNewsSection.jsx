@@ -6,8 +6,8 @@ import {
   Typography,
   Divider,
   Link,
+  Grid,
 } from "@mui/material";
-import Stack from "@mui/material/Stack";
 
 // Example data for News, Notices, and About Us
 const latestNews = [
@@ -42,9 +42,9 @@ const notices = [
 const LatestNewsSection = () => {
   return (
     <Box sx={{ my: 4 }}>
-      <Stack container spacing={4} direction={{ xs: "column", sm: "row" }}>
+      <Grid container spacing={4}>
         {/* Latest News Card */}
-        <Stack item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h5" gutterBottom>
@@ -73,10 +73,10 @@ const LatestNewsSection = () => {
               </Link>
             </CardContent>
           </Card>
-        </Stack>
+        </Grid>
 
         {/* Notices Card */}
-        <Stack item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h5" gutterBottom>
@@ -105,8 +105,8 @@ const LatestNewsSection = () => {
               </Link>
             </CardContent>
           </Card>
-        </Stack>
-      </Stack>
+        </Grid>
+      </Grid>
 
       <Divider sx={{ my: 4 }} />
     </Box>

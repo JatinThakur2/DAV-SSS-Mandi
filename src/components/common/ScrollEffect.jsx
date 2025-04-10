@@ -6,6 +6,7 @@ function ScrollEffect({
   direction = "up",
   delay = 0,
   threshold = 0.2,
+  sx = {},
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const elementRef = useRef(null);
@@ -57,6 +58,7 @@ function ScrollEffect({
         opacity: isVisible ? 1 : 0,
         transition: `transform 0.8s ease-out, opacity 0.8s ease-out`,
         transitionDelay: `${delay}s`,
+        ...sx,
       }}
     >
       {children}

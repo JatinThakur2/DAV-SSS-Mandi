@@ -1,137 +1,225 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Box,
-  Container,
   Typography,
-  Card,
-  CardContent,
-  TextField,
-  Button,
   Grid,
   Paper,
-  Divider,
+  Container,
+  TextField,
+  Button,
+  Card,
+  CardContent,
 } from "@mui/material";
 import {
+  School as SchoolIcon,
+  People as PeopleIcon,
+  EmojiEvents as AwardIcon,
+  History as HistoryIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   LocationOn as LocationIcon,
-  Send as SendIcon,
 } from "@mui/icons-material";
-import GoogleMapLocation from "../components/common/GoogleMapsLocation";
 import PageHeader from "../components/common/PageHeader";
 
 function ContactPage() {
+  const [inView, setInView] = useState(false);
+  const [counts, setCounts] = useState({
+    established: 0,
+    students: 0,
+    faculty: 0,
+    pass: 0,
+  });
+  const sectionRef = useRef(null);
+
+  // Wrap targetCounts in useMemo to prevent recreation on every render
+  const targetCounts = useMemo(
+    () => ({
+      established: 1944,
+      students: 1000,
+      faculty: 25,
+      pass: 100,
+    }),
+    []
+  ); // Empty dependency array means it's created only once
+
+  // Check if element is in viewport
+  useEffect(() => {
+    const currentRef = sectionRef.current; // Store the ref value in a variable
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect(); // Once triggered, disconnect observer
+        }
+      },
+      { threshold: 0.2 } // Trigger when 20% of the element is visible
+    );
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        // Use the stored variable in cleanup
+        observer.disconnect();
+      }
+    };
+  }, []);
+
+  // Counting animation effect
+  useEffect(() => {
+    if (!inView) return;
+
+    const duration = 2000; // Duration of count animation in ms
+    const frameDuration = 1000 / 60; // Duration of one frame at 60fps
+    const totalFrames = Math.round(duration / frameDuration);
+
+    let frame = 0;
+    const counter = setInterval(() => {
+      frame++;
+
+      const progress = frame / totalFrames;
+
+      setCounts({
+        established: Math.floor(progress * targetCounts.established),
+        students: Math.floor(progress * targetCounts.students),
+        faculty: Math.floor(progress * targetCounts.faculty),
+        pass: Math.floor(progress * targetCounts.pass),
+      });
+
+      if (frame === totalFrames) {
+        clearInterval(counter);
+        setCounts(targetCounts); // Ensure we hit exact target numbers
+      }
+    }, frameDuration);
+
+    return () => clearInterval(counter);
+  }, [inView, targetCounts]); // targetCounts is now memoized, so it won't change
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Handle form submission logic here
+    console.log("Form submitted");
+  };
+
   return (
     <>
-      <PageHeader
-        title="Contact Us"
-        subtitle="Get in touch with us. We'd love to hear from you!"
-        bgImage="/api/placeholder/1920/400" // Replace with actual school building or reception image
-      />
+      <PageHeader title="Contact Us" subtitle="Get in touch with our team" />
 
-      <Container maxWidth="lg" sx={{ my: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 8 }}>
         <Grid container spacing={4}>
           {/* Contact Information */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  School Address
+          <Grid item xs={12} md={4}>
+            <Card elevation={3} sx={{ height: "100%" }}>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>
+                  Contact Information
                 </Typography>
+                <Box sx={{ mt: 4 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                    <LocationIcon
+                      sx={{ color: "primary.main", mr: 2, fontSize: 28 }}
+                    />
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        Address
+                      </Typography>
+                      <Typography variant="body1">
+                        123 Education Avenue, Knowledge City, 12345
+                      </Typography>
+                    </Box>
+                  </Box>
 
-                <Box sx={{ display: "flex", alignItems: "flex-start", mt: 2 }}>
-                  <LocationIcon color="primary" sx={{ mr: 2, mt: 0.5 }} />
-                  <Typography variant="body1">
-                    D.A.V Senior Secondary School, <br />
-                    Near Victoria bridge, Mandi, <br />
-                    District Mandi, H.P. - 175001
-                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                    <PhoneIcon
+                      sx={{ color: "primary.main", mr: 2, fontSize: 28 }}
+                    />
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        Phone
+                      </Typography>
+                      <Typography variant="body1">(123) 456-7890</Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                    <EmailIcon
+                      sx={{ color: "primary.main", mr: 2, fontSize: 28 }}
+                    />
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        Email
+                      </Typography>
+                      <Typography variant="body1">
+                        info@educationinstitute.com
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
+              </CardContent>
+            </Card>
+          </Grid>
 
-                <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
-                  <EmailIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography variant="body1">
-                    <a
-                      href="mailto:davsss.mnd@gmail.com"
-                      style={{
-                        color: "inherit",
-                        textDecoration: "none",
-                        borderBottom: "1px dotted",
-                      }}
-                    >
-                      davsss.mnd@gmail.com
-                    </a>
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                  <PhoneIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography variant="body1">
-                    <a
-                      href="tel:01905-223145"
-                      style={{
-                        color: "inherit",
-                        textDecoration: "none",
-                        borderBottom: "1px dotted",
-                      }}
-                    >
-                      01905-223145
-                    </a>
-                  </Typography>
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* Contact Form */}
-                <Typography variant="h5" gutterBottom>
+          {/* Contact Form */}
+          <Grid item xs={12} md={8}>
+            <Card elevation={3}>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>
                   Send us a Message
                 </Typography>
-
-                <Box component="form" sx={{ mt: 2 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
-                        required
                         fullWidth
-                        label="Full Name"
+                        label="First Name"
+                        required
                         variant="outlined"
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <TextField
+                        fullWidth
+                        label="Last Name"
                         required
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
                         fullWidth
                         label="Email Address"
-                        variant="outlined"
+                        required
                         type="email"
+                        variant="outlined"
                       />
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
-                        required
                         fullWidth
                         label="Subject"
+                        required
                         variant="outlined"
                       />
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
-                        required
                         fullWidth
-                        label="Your Message"
-                        variant="outlined"
+                        label="Message"
+                        required
                         multiline
                         rows={4}
+                        variant="outlined"
                       />
                     </Grid>
                     <Grid item xs={12}>
                       <Button
                         type="submit"
                         variant="contained"
-                        color="primary"
-                        endIcon={<SendIcon />}
+                        size="large"
                         fullWidth
-                        sx={{ mt: 1 }}
+                        sx={{ py: 1.5 }}
                       >
                         Send Message
                       </Button>
@@ -141,26 +229,166 @@ function ContactPage() {
               </CardContent>
             </Card>
           </Grid>
-
-          {/* Google Map */}
-          <Grid item xs={12} md={6}>
-            <Card sx={{ height: "100%" }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  Our Location
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  We are conveniently located near Victoria Bridge in Mandi. You
-                  can find us on the map below:
-                </Typography>
-                <Box sx={{ mt: 2, height: "calc(100% - 80px)" }}>
-                  <GoogleMapLocation height="450px" />
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
         </Grid>
       </Container>
+
+      {/* Stats Section */}
+      <Box
+        ref={sectionRef}
+        sx={{
+          py: 6,
+          backgroundColor: "primary.main",
+          color: "white",
+          transform: inView ? "translateY(0)" : "translateY(50px)",
+          opacity: inView ? 1 : 0,
+          transition: "transform 0.8s ease-out, opacity 0.8s ease-out",
+        }}
+      >
+        <Grid
+          container
+          spacing={3}
+          justifyContent="center"
+          maxWidth="lg"
+          sx={{ mx: "auto", px: 2 }}
+        >
+          {/* Established Year */}
+          <Grid item xs={6} sm={3}>
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: "primary.dark",
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-10px)",
+                },
+              }}
+            >
+              <HistoryIcon
+                sx={{ fontSize: 40, mb: 1, color: "primary.main" }}
+              />
+              <Typography variant="h3" fontWeight="bold">
+                {counts.established}
+              </Typography>
+              <Typography variant="h6" textAlign="center">
+                Established
+              </Typography>
+            </Paper>
+          </Grid>
+
+          {/* Number of Students */}
+          <Grid item xs={6} sm={3}>
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: "primary.dark",
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-10px)",
+                },
+              }}
+            >
+              <PeopleIcon sx={{ fontSize: 40, mb: 1, color: "primary.main" }} />
+              <Typography variant="h3" fontWeight="bold">
+                {counts.students}+
+              </Typography>
+              <Typography variant="h6" textAlign="center">
+                Students
+              </Typography>
+            </Paper>
+          </Grid>
+
+          {/* Faculty Members */}
+          <Grid item xs={6} sm={3}>
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: "primary.dark",
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-10px)",
+                },
+              }}
+            >
+              <SchoolIcon sx={{ fontSize: 40, mb: 1, color: "primary.main" }} />
+              <Typography variant="h3" fontWeight="bold">
+                {counts.faculty}+
+              </Typography>
+              <Typography variant="h6" textAlign="center">
+                Faculty Members
+              </Typography>
+            </Paper>
+          </Grid>
+
+          {/* Pass Percentage */}
+          <Grid item xs={6} sm={3}>
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: "primary.dark",
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-10px)",
+                },
+              }}
+            >
+              <AwardIcon sx={{ fontSize: 40, mb: 1, color: "primary.main" }} />
+              <Typography variant="h3" fontWeight="bold">
+                {counts.pass}%
+              </Typography>
+              <Typography variant="h6" textAlign="center">
+                Pass Percentage
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Map Section */}
+      <Box sx={{ height: "400px", width: "100%", bgcolor: "gray.200" }}>
+        {/* Map would be inserted here with a mapping library like Google Maps or Leaflet */}
+        <Box
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "#f5f5f5",
+          }}
+        >
+          <Typography variant="h5" color="text.secondary">
+            Map Integration Placeholder
+          </Typography>
+        </Box>
+      </Box>
     </>
   );
 }
