@@ -24,6 +24,8 @@ import {
 import HomeCarousel from "../components/home/HomeCarousel";
 import LatestNewsSection from "../components/home/LatestNewsSection";
 import PrincipalMessage from "../components/home/PrincipalMessage";
+import StatsCounter from "../components/home/StatsCounter";
+import ScrollEffect from "../components/common/ScrollEffect";
 import OmLogo from "../components/common/OmLogo";
 
 function HomePage() {
@@ -55,14 +57,6 @@ function HomePage() {
     },
   ];
 
-  // Key stats
-  const stats = [
-    { value: "1944", label: "Established" },
-    { value: "1000+", label: "Students" },
-    { value: "25+", label: "Faculty Members" },
-    { value: "100%", label: "Pass Percentage" },
-  ];
-
   return (
     <Box>
       {/* Hero Section with Carousel */}
@@ -71,245 +65,238 @@ function HomePage() {
       {/* Key Features Section */}
       <Box sx={{ py: 8, backgroundColor: "#f8f9fa" }}>
         <Container maxWidth="lg">
-          <Box sx={{ mb: 5, textAlign: "center" }}>
-            <Typography
-              variant="h3"
-              gutterBottom
-              sx={{ fontWeight: 700, color: "secondary.main" }}
-            >
-              Why Choose DAV Mandi
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{ maxWidth: 700, mx: "auto", color: "text.secondary" }}
-            >
-              We provide a supportive environment where students can excel
-              academically and develop into well-rounded individuals.
-            </Typography>
-          </Box>
+          <ScrollEffect>
+            <Box sx={{ mb: 5, textAlign: "center" }}>
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontWeight: 700, color: "secondary.main" }}
+              >
+                Why Choose DAV Mandi
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ maxWidth: 700, mx: "auto", color: "text.secondary" }}
+              >
+                We provide a supportive environment where students can excel
+                academically and develop into well-rounded individuals.
+              </Typography>
+            </Box>
+          </ScrollEffect>
 
-          <Grid container spacing={4}>
-            {features.map((feature, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    borderRadius: 3,
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                    "&:hover": {
-                      transform: "translateY(-10px)",
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-                    },
-                  }}
+          <Box sx={{ position: "relative" }}>
+            <Grid container spacing={4} alignItems="stretch">
+              {features.map((feature, index) => (
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={3}
+                  key={index}
+                  sx={{ display: "flex" }}
                 >
-                  <CardContent
-                    sx={{
-                      p: 4,
-                      textAlign: "center",
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Avatar
+                  <ScrollEffect delay={index * 0.2} sx={{ width: "100%" }}>
+                    <Card
                       sx={{
-                        bgcolor: "primary.main",
-                        width: 70,
-                        height: 70,
-                        mx: "auto",
-                        mb: 3,
-                        boxShadow: "0 5px 15px rgba(255, 107, 0, 0.3)",
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
+                        width: "100%",
+                        borderRadius: 3,
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        "&:hover": {
+                          transform: "translateY(-10px)",
+                          boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                        },
                       }}
                     >
-                      {feature.icon}
-                    </Avatar>
-                    <Typography
-                      variant="h5"
-                      gutterBottom
-                      sx={{ fontWeight: 600 }}
-                    >
-                      {feature.title}
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      color="text.secondary"
-                      sx={{ flexGrow: 1 }}
-                    >
-                      {feature.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                      <CardContent
+                        sx={{
+                          p: 4,
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                        }}
+                      >
+                        <Avatar
+                          sx={{
+                            bgcolor: "primary.main",
+                            width: 70,
+                            height: 70,
+                            mx: "auto",
+                            mb: 3,
+                            boxShadow: "0 5px 15px rgba(255, 107, 0, 0.3)",
+                          }}
+                        >
+                          {feature.icon}
+                        </Avatar>
+                        <Typography
+                          variant="h5"
+                          gutterBottom
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {feature.title}
+                        </Typography>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography variant="body1" color="text.secondary">
+                            {feature.description}
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </ScrollEffect>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         </Container>
       </Box>
+
+      {/* Stats Counter Section */}
+      <StatsCounter />
 
       {/* About School Section with Om Symbol */}
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
-              <Box sx={{ position: "relative" }}>
-                <Box
-                  sx={{
-                    backgroundColor: "primary.main",
-                    borderRadius: 4,
-                    p: 2,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: 400,
-                  }}
-                >
-                  {/* Using the white version of the logo */}
-                  <OmLogo sx={{ fontSize: 250 }} white={true} />
+              <ScrollEffect direction="right">
+                <Box sx={{ position: "relative" }}>
+                  <Box
+                    sx={{
+                      backgroundColor: "primary.main",
+                      borderRadius: 4,
+                      p: 2,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: 400,
+                    }}
+                  >
+                    {/* Using the white version of the logo */}
+                    <OmLogo sx={{ fontSize: 250 }} white={true} />
+                  </Box>
+                  <Paper
+                    elevation={4}
+                    sx={{
+                      position: "absolute",
+                      bottom: -30,
+                      right: -30,
+                      width: 180,
+                      height: 180,
+                      borderRadius: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "flex-start",
+                      backgroundColor: "secondary.main",
+                      color: "white",
+                      p: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h1"
+                      sx={{
+                        fontWeight: 900,
+                        alignSelf: "flex-start",
+                      }}
+                    >
+                      80
+                    </Typography>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        alignSelf: "center",
+                      }}
+                    >
+                      Years of Excellence
+                    </Typography>
+                  </Paper>
                 </Box>
-                <Paper
-                  elevation={4}
-                  sx={{
-                    position: "absolute",
-                    bottom: -30,
-                    right: -30,
-                    width: 180,
-                    height: 180,
-                    borderRadius: 3,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "flex-start", // Changed from "center" to align items to left
-                    backgroundColor: "secondary.main",
-                    color: "white",
-                    p: 2,
-                  }}
-                >
-                  <Typography
-                    variant="h1"
-                    sx={{
-                      fontWeight: 900,
-                      alignSelf: "flex-start", // Explicitly align the "80" to the left
-                    }}
-                  >
-                    80
-                  </Typography>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      alignSelf: "center", // Keep "Years of Excellence" centered
-                    }}
-                  >
-                    Years of Excellence
-                  </Typography>
-                </Paper>
-              </Box>
+              </ScrollEffect>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Typography
-                variant="h6"
-                sx={{
-                  color: "primary.main",
-                  fontWeight: 600,
-                  mb: 1,
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Box
+              <ScrollEffect direction="left">
+                <Typography
+                  variant="h6"
                   sx={{
-                    width: 30,
-                    height: 2,
-                    backgroundColor: "primary.main",
-                    mr: 1,
-                    display: "inline-block",
-                  }}
-                />
-                ABOUT OUR SCHOOL
-              </Typography>
-              <Typography
-                variant="h3"
-                gutterBottom
-                sx={{ fontWeight: 700, color: "secondary.main" }}
-              >
-                Empowering Students Through Knowledge & Values
-              </Typography>
-              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
-                The D.A.V senior secondary school Mandi was established in 1944,
-                initially as a Primary school in the premises of Arya Samaj
-                Mandir. The school was patronized and run under the guidance of
-                Late Swami Krishanand ji (Freedom fighter and social reformer),
-                late captain Inder Singh and Late Sh. Dina Nath Vaidya
-                (Advocate).
-              </Typography>
-              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
-                Since its inception, the school has made remarkable progress in
-                every area. Our alumni have achieved prominent positions in
-                Medicine, Engineering, Academics, Defence, Administration, and
-                the Corporate World.
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  component={Link}
-                  to="/about/about-dav"
-                  endIcon={<ArrowIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    px: 3,
-                    boxShadow: "0 5px 15px rgba(255, 107, 0, 0.3)",
+                    color: "primary.main",
+                    fontWeight: 600,
+                    mb: 1,
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
-                  Learn More
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  size="large"
-                  component={Link}
-                  to="/contact"
-                  sx={{
-                    ml: 2,
-                    borderRadius: 2,
-                    px: 3,
-                    borderWidth: 2,
-                    "&:hover": {
-                      borderWidth: 2,
-                    },
-                  }}
-                >
-                  Contact Us
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* Statistics Section */}
-      <Box sx={{ py: 8, backgroundColor: "secondary.main", color: "white" }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={3} justifyContent="center">
-            {stats.map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
-                <Box sx={{ textAlign: "center", p: 3 }}>
-                  <Typography
-                    variant="h2"
+                  <Box
                     sx={{
-                      fontWeight: 700,
-                      mb: 1,
-                      fontSize: { xs: "2.5rem", md: "3.5rem" },
-                      color: "primary.main",
+                      width: 30,
+                      height: 2,
+                      backgroundColor: "primary.main",
+                      mr: 1,
+                      display: "inline-block",
+                    }}
+                  />
+                  ABOUT OUR SCHOOL
+                </Typography>
+                <Typography
+                  variant="h3"
+                  gutterBottom
+                  sx={{ fontWeight: 700, color: "secondary.main" }}
+                >
+                  Empowering Students Through Knowledge & Values
+                </Typography>
+                <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+                  The D.A.V senior secondary school Mandi was established in
+                  1944, initially as a Primary school in the premises of Arya
+                  Samaj Mandir. The school was patronized and run under the
+                  guidance of Late Swami Krishanand ji (Freedom fighter and
+                  social reformer), late captain Inder Singh and Late Sh. Dina
+                  Nath Vaidya (Advocate).
+                </Typography>
+                <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+                  Since its inception, the school has made remarkable progress
+                  in every area. Our alumni have achieved prominent positions in
+                  Medicine, Engineering, Academics, Defence, Administration, and
+                  the Corporate World.
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    component={Link}
+                    to="/about/about-dav"
+                    endIcon={<ArrowIcon />}
+                    sx={{
+                      borderRadius: 2,
+                      px: 3,
+                      boxShadow: "0 5px 15px rgba(255, 107, 0, 0.3)",
                     }}
                   >
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                    {stat.label}
-                  </Typography>
+                    Learn More
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="large"
+                    component={Link}
+                    to="/contact"
+                    sx={{
+                      ml: 2,
+                      borderRadius: 2,
+                      px: 3,
+                      borderWidth: 2,
+                      "&:hover": {
+                        borderWidth: 2,
+                      },
+                    }}
+                  >
+                    Contact Us
+                  </Button>
                 </Box>
-              </Grid>
-            ))}
+              </ScrollEffect>
+            </Grid>
           </Grid>
         </Container>
       </Box>
@@ -317,46 +304,59 @@ function HomePage() {
       {/* Latest News & Notices Section */}
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
-          <Box sx={{ mb: 4, textAlign: "center" }}>
-            <Typography
-              variant="h3"
-              gutterBottom
-              sx={{ fontWeight: 700, color: "secondary.main" }}
-            >
-              Latest News & Announcements
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{ maxWidth: 700, mx: "auto", color: "text.secondary" }}
-            >
-              Stay updated with the latest happenings, events, and announcements
-              at DAV SSS Mandi.
-            </Typography>
-          </Box>
-          <LatestNewsSection />
+          <ScrollEffect>
+            <Box sx={{ mb: 4, textAlign: "center" }}>
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontWeight: 700, color: "secondary.main" }}
+              >
+                Latest News & Announcements
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ maxWidth: 700, mx: "auto", color: "text.secondary" }}
+              >
+                Stay updated with the latest happenings, events, and
+                announcements at DAV SSS Mandi.
+              </Typography>
+            </Box>
+          </ScrollEffect>
+          <ScrollEffect delay={0.2}>
+            <LatestNewsSection />
+          </ScrollEffect>
         </Container>
       </Box>
 
       {/* Principal Message Section */}
       <Box sx={{ py: 8, backgroundColor: "#f8f9fa" }}>
         <Container maxWidth="lg">
-          <Box sx={{ mb: 4, textAlign: "center" }}>
-            <Typography
-              variant="h3"
-              gutterBottom
-              sx={{ fontWeight: 700, color: "secondary.main" }}
-            >
-              From Principal's Desk
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{ maxWidth: 700, mx: "auto", color: "text.secondary", mb: 4 }}
-            >
-              Words of wisdom and inspiration from our Principal, Mrs. Sangeeta
-              Kapoor.
-            </Typography>
-          </Box>
-          <PrincipalMessage />
+          <ScrollEffect>
+            <Box sx={{ mb: 4, textAlign: "center" }}>
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontWeight: 700, color: "secondary.main" }}
+              >
+                From Principal's Desk
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  maxWidth: 700,
+                  mx: "auto",
+                  color: "text.secondary",
+                  mb: 4,
+                }}
+              >
+                Words of wisdom and inspiration from our Principal, Mrs.
+                Sangeeta Kapoor.
+              </Typography>
+            </Box>
+          </ScrollEffect>
+          <ScrollEffect delay={0.2}>
+            <PrincipalMessage />
+          </ScrollEffect>
         </Container>
       </Box>
 
@@ -383,44 +383,46 @@ function HomePage() {
         </Box>
 
         <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={8}>
-              <Typography variant="h3" gutterBottom sx={{ fontWeight: 700 }}>
-                Join DAV Senior Secondary School, Mandi
-              </Typography>
-              <Typography variant="h6" sx={{ mb: 3, maxWidth: 700 }}>
-                Provide your child with an education that balances academic
-                excellence with character development in a nurturing
-                environment.
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={4}
-              sx={{ textAlign: { xs: "left", md: "right" } }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                component={Link}
-                to="/admission/rules"
-                sx={{
-                  borderRadius: 2,
-                  px: 5,
-                  py: 1.5,
-                  backgroundColor: "white",
-                  color: "primary.main",
-                  boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.9)",
-                  },
-                }}
+          <ScrollEffect>
+            <Grid container spacing={4} alignItems="center">
+              <Grid item xs={12} md={8}>
+                <Typography variant="h3" gutterBottom sx={{ fontWeight: 700 }}>
+                  Join DAV Senior Secondary School, Mandi
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 3, maxWidth: 700 }}>
+                  Provide your child with an education that balances academic
+                  excellence with character development in a nurturing
+                  environment.
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={4}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
               >
-                Apply for Admission
-              </Button>
+                <Button
+                  variant="contained"
+                  size="large"
+                  component={Link}
+                  to="/admission/rules"
+                  sx={{
+                    borderRadius: 2,
+                    px: 5,
+                    py: 1.5,
+                    backgroundColor: "white",
+                    color: "primary.main",
+                    boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.9)",
+                    },
+                  }}
+                >
+                  Apply for Admission
+                </Button>
+              </Grid>
             </Grid>
-          </Grid>
+          </ScrollEffect>
         </Container>
       </Box>
     </Box>

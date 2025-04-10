@@ -1,20 +1,22 @@
 import React from "react";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Paper } from "@mui/material";
 import { Outlet } from "react-router-dom";
+import PageHeader from "../components/common/PageHeader";
 
 function StudentZonePage() {
   return (
-    <Container maxWidth="lg" sx={{ my: 4 }}>
-      <Typography variant="h3" gutterBottom>
-        Student Zone
-      </Typography>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="body1" paragraph>
-          Resources and information for our students.
-        </Typography>
-        <Outlet /> {/* This will render nested routes */}
-      </Paper>
-    </Container>
+    <>
+      <PageHeader
+        title="Student Zone"
+        subtitle="Resources, scholarships, exam results, and important information for our students."
+        bgImage="/api/placeholder/1920/400" // Replace with actual students studying image
+      />
+      <Container maxWidth="lg" sx={{ my: 4 }}>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Outlet /> {/* This will render nested routes */}
+        </Paper>
+      </Container>
+    </>
   );
 }
 

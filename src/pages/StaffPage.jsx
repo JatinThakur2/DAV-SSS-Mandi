@@ -1,20 +1,22 @@
 import React from "react";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Paper } from "@mui/material";
 import { Outlet } from "react-router-dom";
+import PageHeader from "../components/common/PageHeader";
 
 function StaffPage() {
   return (
-    <Container maxWidth="lg" sx={{ my: 4 }}>
-      <Typography variant="h3" gutterBottom>
-        School Staff
-      </Typography>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="body1" paragraph>
-          Meet our dedicated teaching and non-teaching staff.
-        </Typography>
-        <Outlet /> {/* This will render nested routes */}
-      </Paper>
-    </Container>
+    <>
+      <PageHeader
+        title="School Administration"
+        subtitle="Meet our dedicated teaching and non-teaching staff who nurture the future of our students."
+        bgImage="/api/placeholder/1920/400" // Replace with actual staff group photo
+      />
+      <Container maxWidth="lg" sx={{ my: 4 }}>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Outlet /> {/* This will render nested routes */}
+        </Paper>
+      </Container>
+    </>
   );
 }
 

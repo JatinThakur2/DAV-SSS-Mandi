@@ -1,20 +1,22 @@
 import React from "react";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Paper } from "@mui/material";
 import { Outlet } from "react-router-dom";
+import PageHeader from "../components/common/PageHeader";
 
 function AdmissionPage() {
   return (
-    <Container maxWidth="lg" sx={{ my: 4 }}>
-      <Typography variant="h3" gutterBottom>
-        Admission Information
-      </Typography>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="body1" paragraph>
-          Find all the necessary information about admissions at DAV SSS Mandi.
-        </Typography>
-        <Outlet /> {/* This will render nested routes */}
-      </Paper>
-    </Container>
+    <>
+      <PageHeader
+        title="Admission Information"
+        subtitle="Find all the necessary information about admission rules, fee structure, and application process."
+        bgImage="/api/placeholder/1920/400" // Replace with actual classroom or students image
+      />
+      <Container maxWidth="lg" sx={{ my: 4 }}>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Outlet /> {/* This will render nested routes */}
+        </Paper>
+      </Container>
+    </>
   );
 }
 
