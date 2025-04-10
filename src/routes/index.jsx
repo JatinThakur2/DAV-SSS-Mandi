@@ -29,19 +29,6 @@ const FeeStructure = lazy(() => import("../components/admission/FeeStructure"));
 const Scholarship = lazy(() => import("../components/student/Scholarship"));
 const Results = lazy(() => import("../components/student/Results"));
 
-// Admin Components
-const AdminNews = lazy(() => import("../components/admin/AdminNews"));
-const AdminNotices = lazy(() => import("../components/admin/AdminNotices"));
-const AdminStaff = lazy(() => import("../components/admin/AdminStaff")); // Update this line
-const AdminFeeStructure = lazy(
-  () => import("../components/admin/AdminFeeStructure")
-);
-const AdminScholarship = lazy(
-  () => import("../components/admin/AdminScholarship")
-);
-const AdminResults = lazy(() => import("../components/admin/AdminResults"));
-const AdminGallery = lazy(() => import("../components/admin/AdminGallery"));
-
 // 404 Not Found Page Component
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 

@@ -37,7 +37,6 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Image as ImageIcon,
   PhotoCamera as PhotoCameraIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
@@ -46,7 +45,6 @@ import {
   PhotoLibrary as GalleryIcon,
   MoreVert as MoreVertIcon,
   Star as StarIcon,
-  StarBorder as StarBorderIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -426,7 +424,7 @@ function AdminGallery() {
           <Tab label="Events" icon={<EventIcon />} iconPosition="start" />
           <Tab
             label="Images"
-            icon={<PhotoLibraryIcon />}
+            icon={<GalleryIcon />}
             iconPosition="start"
             disabled={!selectedEvent}
           />

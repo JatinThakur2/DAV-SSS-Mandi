@@ -10,7 +10,6 @@ import {
   TableHead,
   TableRow,
   Avatar,
-  Divider,
   Chip,
 } from "@mui/material";
 import {

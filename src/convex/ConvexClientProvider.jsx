@@ -1,9 +1,10 @@
-// src/convex/ConvexClientProvider.jsx
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import React from "react";
 
-// Create a Convex client
-const convex = new ConvexReactClient(process.env.REACT_APP_CONVEX_URL);
+// Mock provider until you set up Convex properly
+const ConvexProvider = ({ children }) => {
+  return <>{children}</>;
+};
 
 export default function ConvexClientProvider({ children }) {
-  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+  return <ConvexProvider>{children}</ConvexProvider>;
 }

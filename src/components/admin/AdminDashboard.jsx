@@ -32,7 +32,6 @@ import {
   PhotoLibrary as GalleryIcon,
   ExitToApp as LogoutIcon,
   Menu as MenuIcon,
-  ArrowBack as ArrowBackIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";
 

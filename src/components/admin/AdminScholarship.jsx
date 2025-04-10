@@ -1,4 +1,3 @@
-// src/components/admin/AdminScholarship.jsx
 import React, { useState } from "react";
 import {
   Box,
@@ -30,7 +29,6 @@ import {
   InputLabel,
   Select,
   Alert,
-  Stack,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -76,7 +74,7 @@ function AdminScholarship() {
     details: "",
   });
 
-  const { currentUser } = useAuth();
+  useAuth();
 
   // Convex queries and mutations
   const allScholarships = useQuery("scholarship:getAllScholarships") || [];
