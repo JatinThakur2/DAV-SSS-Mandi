@@ -9,14 +9,23 @@ import {
   Container,
   Alert,
   CircularProgress,
+  Divider,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import {
+  Visibility,
+  VisibilityOff,
+  Login as LoginIcon,
+} from "@mui/icons-material";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import OmLogo from "../components/common/OmLogo";
 
 function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
@@ -28,6 +37,10 @@ function AdminLoginPage() {
       navigate("/admin/dashboard");
     }
   }, [isAuthenticated, navigate]);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,18 +133,38 @@ function AdminLoginPage() {
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               sx={{ mb: 3 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={togglePasswordVisibility}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               disabled={loading}
+              startIcon={
+                loading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <LoginIcon />
+                )
+              }
               sx={{
                 py: 1.5,
                 borderRadius: 2,
@@ -139,12 +172,26 @@ function AdminLoginPage() {
                 textTransform: "none",
               }}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Sign In"
-              )}
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
+          </Box>
+
+          <Divider sx={{ width: "100%", my: 3 }} />
+
+          <Box sx={{ width: "100%", textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Need an admin account?{" "}
+              <Link
+                to="/admin/register"
+                style={{
+                  color: "#FF6B00",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                Register Now
+              </Link>
+            </Typography>
           </Box>
 
           <Box sx={{ mt: 4, textAlign: "center" }}>

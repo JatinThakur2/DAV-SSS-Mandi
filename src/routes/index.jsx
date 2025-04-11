@@ -11,6 +11,7 @@ const StudentZonePage = lazy(() => import("../pages/StudentZonePage"));
 const GalleryPage = lazy(() => import("../pages/GalleryPage"));
 const ContactPage = lazy(() => import("../pages/ContactPage"));
 const AdminLoginPage = lazy(() => import("../pages/AdminLoginPage"));
+const AdminRegisterPage = lazy(() => import("../pages/AdminRegisterPage")); // New registration page
 const AdminSetupPage = lazy(() => import("../pages/AdminSetupPage"));
 const AdminDashboard = lazy(() => import("../components/admin/AdminDashboard"));
 
@@ -152,6 +153,10 @@ export const routes = [
   {
     path: "/admin/login",
     element: <AdminLoginPage />,
+  },
+  {
+    path: "/admin/register", // New registration route
+    element: <AdminRegisterPage />,
   },
   {
     path: "/admin/setup",

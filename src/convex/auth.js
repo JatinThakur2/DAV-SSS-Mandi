@@ -57,6 +57,29 @@ export const createUser = mutation({
   async handler(ctx, args) {
     const { name, email, password, role } = args;
 
+    // Validate input
+    if (!name.trim()) {
+      throw new ConvexError("Name is required");
+    }
+
+    if (!email.trim()) {
+      throw new ConvexError("Email is required");
+    }
+
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new ConvexError("Invalid email format");
+    }
+
+    if (!password || password.length < 6) {
+      throw new ConvexError("Password must be at least 6 characters long");
+    }
+
+    if (!role || !["admin", "editor", "viewer"].includes(role)) {
+      throw new ConvexError("Invalid role");
+    }
+
     // Check if user already exists
     const existingUser = await ctx.db
       .query("users")
@@ -80,7 +103,11 @@ export const createUser = mutation({
       updatedAt: Date.now(),
     });
 
-    return { userId };
+    return {
+      userId,
+      success: true,
+      message: "User created successfully",
+    };
   },
 });
 
