@@ -33,7 +33,11 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   School as SchoolIcon,
+  EmojiEvents as AwardIcon,
 } from "@mui/icons-material";
+
+// Import from our custom hooks instead of the generated ones
+import { useMutation, useQuery } from "../../convex/hooks";
 
 function AdminResults() {
   const [selectedYear, setSelectedYear] = useState("2024-2025");

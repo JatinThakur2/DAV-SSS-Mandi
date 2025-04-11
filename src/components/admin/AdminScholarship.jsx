@@ -38,7 +38,9 @@ import {
   PersonAdd as PersonAddIcon,
   FilterList as FilterIcon,
 } from "@mui/icons-material";
-import { useMutation, useQuery } from "../../convex/_generated/react";
+
+// Import from our custom hooks file instead of the generated one
+import { useMutation, useQuery } from "../../convex/hooks";
 import { useAuth } from "../../contexts/AuthContext";
 
 function AdminScholarship() {
@@ -76,20 +78,100 @@ function AdminScholarship() {
 
   useAuth();
 
-  // Convex queries and mutations
-  const allScholarships = useQuery("scholarship:getAllScholarships") || [];
-  const recipients =
-    useQuery(
-      "scholarship:getRecipientsByScholarship",
-      selectedScholarship ? { scholarshipId: selectedScholarship } : "skip"
-    ) || [];
+  // Sample data (to be replaced with Convex data)
+  const allScholarships = [
+    {
+      _id: "mock-scholarship-1",
+      name: "Swami Vivekanand Scholarship",
+      description: "Merit-based scholarship for general category students",
+      type: "government",
+      academicYear: "2024-2025",
+    },
+    {
+      _id: "mock-scholarship-2",
+      name: "Dr. Ambedkar Medhavi Chayravriti Yojna",
+      description: "Scholarship for SC/ST category students",
+      type: "government",
+      academicYear: "2024-2025",
+    },
+    {
+      _id: "mock-scholarship-3",
+      name: "PM Yashavi Pre Matric Scholarship",
+      description: "For OBC/EBC/DNT students",
+      type: "government",
+      academicYear: "2024-2025",
+    },
+    {
+      _id: "mock-scholarship-4",
+      name: "NVM Memorial Prize",
+      description: "For outstanding performance in academics",
+      type: "private",
+      academicYear: "2024-2025",
+    },
+    {
+      _id: "mock-scholarship-5",
+      name: "Bhom Prakash and Bhagwati Devi Memorial Scholarship",
+      description: "For toppers in Science, especially girl child",
+      type: "private",
+      academicYear: "2024-2025",
+    },
+  ];
 
-  const createScholarship = useMutation("scholarship:createScholarship");
-  const updateScholarship = useMutation("scholarship:updateScholarship");
-  const deleteScholarship = useMutation("scholarship:deleteScholarship");
-  const addRecipient = useMutation("scholarship:addRecipient");
-  const updateRecipient = useMutation("scholarship:updateRecipient");
-  const deleteRecipient = useMutation("scholarship:deleteRecipient");
+  // Sample recipients data
+  const recipients = [
+    {
+      _id: "mock-recipient-1",
+      scholarshipId: "mock-scholarship-1",
+      studentName: "Sunakshi",
+      class: "XI",
+      amount: "",
+      details: "",
+      academicYear: "2024-2025",
+    },
+    {
+      _id: "mock-recipient-2",
+      scholarshipId: "mock-scholarship-1",
+      studentName: "Sonali",
+      class: "XII",
+      amount: "",
+      details: "",
+      academicYear: "2024-2025",
+    },
+    {
+      _id: "mock-recipient-3",
+      scholarshipId: "mock-scholarship-2",
+      studentName: "Yashika",
+      class: "X",
+      amount: "Rs. 18,000/-",
+      details: "Topper in SC category",
+      academicYear: "2024-2025",
+    },
+  ];
+
+  // Mock implementations for Convex functions
+  const createScholarship = async (args) => {
+    return { scholarshipId: `mock-scholarship-${Date.now()}` };
+  };
+
+  const updateScholarship = async (args) => {
+    return { success: true };
+  };
+
+  const deleteScholarship = async (args) => {
+    return { success: true };
+  };
+
+  const addRecipient = async (args) => {
+    return { recipientId: `mock-recipient-${Date.now()}` };
+  };
+
+  const updateRecipient = async (args) => {
+    return { success: true };
+  };
+
+  const deleteRecipient = async (args) => {
+    return { success: true };
+  };
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -185,7 +267,7 @@ function AdminScholarship() {
 
     try {
       if (editingScholarshipId) {
-        // Update existing scholarship
+        // Update existing scholarship (simulation)
         await updateScholarship({
           id: editingScholarshipId,
           name: scholarshipFormData.name,
@@ -194,7 +276,7 @@ function AdminScholarship() {
           academicYear: scholarshipFormData.academicYear,
         });
       } else {
-        // Create new scholarship
+        // Create new scholarship (simulation)
         const result = await createScholarship({
           name: scholarshipFormData.name,
           description: scholarshipFormData.description,
@@ -302,14 +384,10 @@ function AdminScholarship() {
     ...new Set(allScholarships.map((s) => s.academicYear)),
   ];
 
-  // Loading state
-  if (allScholarships === undefined) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", m: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // Filter recipients by selected scholarship
+  const filteredRecipients = recipients.filter(
+    (r) => r.scholarshipId === selectedScholarship
+  );
 
   return (
     <Box>
@@ -361,7 +439,7 @@ function AdminScholarship() {
             <Divider orientation="vertical" flexItem />
             <Box>
               <Typography variant="h3" color="warning.main" fontWeight="bold">
-                {recipients.length}
+                {filteredRecipients.length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Selected Recipients
@@ -595,7 +673,7 @@ function AdminScholarship() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {recipients.length === 0 ? (
+                {filteredRecipients.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} align="center">
                       <Typography variant="body1" sx={{ py: 2 }}>
@@ -605,7 +683,7 @@ function AdminScholarship() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  recipients.map((recipient) => (
+                  filteredRecipients.map((recipient) => (
                     <TableRow key={recipient._id}>
                       <TableCell>{recipient.studentName}</TableCell>
                       <TableCell>{recipient.class || "—"}</TableCell>
