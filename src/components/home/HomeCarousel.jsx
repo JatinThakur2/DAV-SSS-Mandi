@@ -2,7 +2,7 @@
 import React from "react";
 import { Box, Typography, Button, Container, Grid } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination, EffectFade } from "swiper/modules";
+import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import OmLogo from "../common/OmLogo";
@@ -56,10 +56,9 @@ function HomeCarousel() {
       }}
     >
       <Swiper
-        modules={[Autoplay, Navigation, Pagination, EffectFade]}
+        modules={[Autoplay, Pagination, EffectFade]}
         spaceBetween={0}
         slidesPerView={1}
-        navigation
         pagination={{ clickable: true }}
         autoplay={{
           delay: 6000,
