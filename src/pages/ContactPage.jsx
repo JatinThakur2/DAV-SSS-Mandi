@@ -20,7 +20,7 @@ import {
   LocationOn as LocationIcon,
 } from "@mui/icons-material";
 import PageHeader from "../components/common/PageHeader";
-
+import GoogleMapLocation from "../components/common/GoogleMapsLocation";
 function ContactPage() {
   const [inView, setInView] = useState(false);
   const [counts, setCounts] = useState({
@@ -374,6 +374,7 @@ function ContactPage() {
       {/* Map Section */}
       <Box sx={{ height: "400px", width: "100%", bgcolor: "gray.200" }}>
         {/* Map would be inserted here with a mapping library like Google Maps or Leaflet */}
+
         <Box
           sx={{
             height: "100%",
@@ -384,9 +385,7 @@ function ContactPage() {
             bgcolor: "#f5f5f5",
           }}
         >
-          <Typography variant="h5" color="text.secondary">
-            Map Integration Placeholder
-          </Typography>
+          <GoogleMapLocation></GoogleMapLocation>
         </Box>
       </Box>
     </>

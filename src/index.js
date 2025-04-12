@@ -4,16 +4,11 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-// Import the ConvexClientProvider
-import ConvexClientProvider from "./convex/ConvexClientProvider";
-
 // Wrap the App with ConvexClientProvider
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <ConvexClientProvider>
-      <App />
-    </ConvexClientProvider>
+    <App />
   </React.StrictMode>
 );
 
