@@ -9,9 +9,6 @@ import {
   Divider,
   Tabs,
   Tab,
-  Dialog,
-  DialogContent,
-  IconButton,
   Grid,
   Skeleton,
   Alert,
@@ -21,17 +18,20 @@ import {
 } from "@mui/material";
 import {
   Event as EventIcon,
-  Close as CloseIcon,
   CalendarMonth as CalendarIcon,
   PhotoLibrary as GalleryIcon,
 } from "@mui/icons-material";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
+// Import our enhanced image dialog component
+import EnhancedImageViewDialog from "./EnhancedImageViewDialog";
+
 function SchoolGallery() {
   const [currentTab, setCurrentTab] = useState(0);
-  const [openImage, setOpenImage] = useState(null);
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [openImage, setOpenImage] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fetch gallery events from Convex
   const galleryEventsResult = useQuery(api.gallery.getGalleryEvents);
@@ -47,6 +47,12 @@ function SchoolGallery() {
       api.gallery.getGalleryImagesByEvent,
       selectedEventId ? { eventId: selectedEventId } : "skip"
     ) || [];
+
+  // Get the selected event details
+  const selectedEvent = useMemo(() => {
+    if (!selectedEventId || !galleryEvents) return null;
+    return galleryEvents.find((event) => event._id === selectedEventId);
+  }, [selectedEventId, galleryEvents]);
 
   // Loading state
   const isLoading = galleryEventsResult === undefined;
@@ -82,12 +88,22 @@ function SchoolGallery() {
     setSelectedEventId(null); // Reset selected event when changing tabs
   };
 
-  const handleOpenImage = (image) => {
-    setOpenImage(image);
+  // Create an array of image URLs for the dialog
+  const imageUrls = useMemo(() => {
+    return selectedEventImages?.map((image) => image.imageUrl) || [];
+  }, [selectedEventImages]);
+
+  const handleOpenImage = (index) => {
+    setCurrentImageIndex(index);
+    setOpenImage(true);
   };
 
   const handleCloseImage = () => {
-    setOpenImage(null);
+    setOpenImage(false);
+  };
+
+  const handleNavigate = (newIndex) => {
+    setCurrentImageIndex(newIndex);
   };
 
   const handleSelectEvent = (eventId) => {
@@ -131,7 +147,7 @@ function SchoolGallery() {
                   cursor: "pointer",
                   objectFit: "cover",
                 }}
-                onClick={() => handleOpenImage(image.imageUrl)}
+                onClick={() => handleOpenImage(index)}
               />
               {image.caption && (
                 <CardContent sx={{ py: 1 }}>
@@ -344,45 +360,16 @@ function SchoolGallery() {
         </>
       )}
 
-      {/* Image Popup Dialog */}
-      <Dialog
-        open={!!openImage}
+      {/* Enhanced Image Viewer Dialog */}
+      <EnhancedImageViewDialog
+        open={openImage}
         onClose={handleCloseImage}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogContent sx={{ p: 0, position: "relative" }}>
-          <IconButton
-            aria-label="close"
-            onClick={handleCloseImage}
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: 8,
-              color: "white",
-              bgcolor: "rgba(0,0,0,0.5)",
-              "&:hover": {
-                bgcolor: "rgba(0,0,0,0.7)",
-              },
-              zIndex: 1,
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-          {openImage && (
-            <img
-              src={openImage}
-              alt="Enlarged view"
-              style={{
-                width: "100%",
-                maxHeight: "80vh",
-                objectFit: "contain",
-                display: "block",
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+        currentImageUrl={imageUrls[currentImageIndex]}
+        allImages={imageUrls}
+        currentIndex={currentImageIndex}
+        onNavigate={handleNavigate}
+        eventTitle={selectedEvent?.title || "Gallery"}
+      />
     </Container>
   );
 }
