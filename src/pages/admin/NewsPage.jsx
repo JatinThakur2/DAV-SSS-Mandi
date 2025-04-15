@@ -28,6 +28,8 @@ import {
   Alert,
   Snackbar,
   Stack,
+  Link,
+  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -35,6 +37,7 @@ import {
   Delete as DeleteIcon,
   Newspaper as NewsIcon,
   Announcement as NoticeIcon,
+  Link as LinkIcon,
 } from "@mui/icons-material";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -50,6 +53,7 @@ function NewsPage() {
     date: format(new Date(), "yyyy-MM-dd"),
     description: "",
     isNotice: false,
+    link: "", // Added link field
   });
   const [currentNewsId, setCurrentNewsId] = useState(null);
   const [snackbar, setSnackbar] = useState({
@@ -79,6 +83,7 @@ function NewsPage() {
         date: item.date,
         description: item.description,
         isNotice: item.isNotice,
+        link: item.link || "", // Handle case where link might be undefined
       });
       setCurrentNewsId(item._id);
     } else {
@@ -87,6 +92,7 @@ function NewsPage() {
         date: format(new Date(), "yyyy-MM-dd"),
         description: "",
         isNotice: tabValue === 1, // If on the Notices tab, set isNotice to true
+        link: "",
       });
       setCurrentNewsId(null);
     }
@@ -124,8 +130,14 @@ function NewsPage() {
 
   const handleSaveNews = async () => {
     try {
+      // If link is empty, set it to undefined so it's optional in the database
+      const newsData = {
+        ...currentNews,
+        link: currentNews.link.trim() === "" ? undefined : currentNews.link,
+      };
+
       if (dialogMode === "add") {
-        await addNews(currentNews);
+        await addNews(newsData);
         setSnackbar({
           open: true,
           message: `${currentNews.isNotice ? "Notice" : "News"} added successfully`,
@@ -134,7 +146,7 @@ function NewsPage() {
       } else {
         await updateNews({
           id: currentNewsId,
-          ...currentNews,
+          ...newsData,
         });
         setSnackbar({
           open: true,
@@ -213,9 +225,10 @@ function NewsPage() {
             <TableHead>
               <TableRow>
                 <TableCell width="10%">Type</TableCell>
-                <TableCell width="25%">Title</TableCell>
+                <TableCell width="20%">Title</TableCell>
                 <TableCell width="15%">Date</TableCell>
-                <TableCell width="35%">Description</TableCell>
+                <TableCell width="25%">Description</TableCell>
+                <TableCell width="15%">Link</TableCell>
                 <TableCell width="15%" align="center">
                   Actions
                 </TableCell>
@@ -224,7 +237,7 @@ function NewsPage() {
             <TableBody>
               {(tabValue === 0 ? news : notices).length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={6} align="center">
                     <Typography variant="body1" sx={{ py: 3 }}>
                       No {tabValue === 0 ? "news" : "notices"} found. Click the
                       button above to add some.
@@ -249,6 +262,25 @@ function NewsPage() {
                       {item.description.length > 100
                         ? `${item.description.substring(0, 100)}...`
                         : item.description}
+                    </TableCell>
+                    <TableCell>
+                      {item.link ? (
+                        <Tooltip title={item.link}>
+                          <Link
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ display: "flex", alignItems: "center" }}
+                          >
+                            <LinkIcon sx={{ mr: 0.5, fontSize: 16 }} />
+                            View Link
+                          </Link>
+                        </Tooltip>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No link
+                        </Typography>
+                      )}
                     </TableCell>
                     <TableCell align="center">
                       <Stack
@@ -340,6 +372,19 @@ function NewsPage() {
               fullWidth
               value={currentNews.description}
               onChange={handleInputChange}
+              sx={{ mb: 3 }}
+            />
+
+            <TextField
+              margin="dense"
+              name="link"
+              label="Link URL (Optional)"
+              placeholder="https://example.com"
+              type="url"
+              fullWidth
+              value={currentNews.link}
+              onChange={handleInputChange}
+              helperText="Enter a full URL including https:// if you want to add a link"
             />
           </Box>
         </DialogContent>

@@ -2,16 +2,17 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // News table for latest news and announcements
+  // News table for latest news and announcements - Updated with link field
   news: defineTable({
     title: v.string(),
     date: v.string(),
     description: v.string(),
     isNotice: v.boolean(), // To differentiate between news and notices
+    link: v.optional(v.string()), // Added link field (optional)
     createdAt: v.number(),
   }).index("by_created_at", ["createdAt"]),
 
-  // Results table for student results
+  // The rest of your schema stays the same
   results: defineTable({
     year: v.string(),
     class: v.string(), // "10", "12Arts", "12Science", "12Commerce"
@@ -42,7 +43,6 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_year", ["year"]),
 
-  // Scholarships table for scholarship information
   scholarships: defineTable({
     type: v.string(), // "government" or "private"
     name: v.string(),
@@ -57,7 +57,6 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_type", ["type"]),
 
-  // Gallery events table
   galleryEvents: defineTable({
     title: v.string(),
     date: v.string(),
@@ -66,7 +65,6 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_created_at", ["createdAt"]),
 
-  // Gallery images table
   galleryImages: defineTable({
     eventId: v.id("galleryEvents"),
     imageUrl: v.string(),
@@ -74,7 +72,6 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_event", ["eventId"]),
 
-  // Users table for admin authentication
   users: defineTable({
     email: v.string(),
     name: v.string(),
@@ -83,7 +80,6 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_email", ["email"]),
 
-  // Sessions table for authentication
   sessions: defineTable({
     userId: v.id("users"),
     token: v.string(),
@@ -93,6 +89,3 @@ export default defineSchema({
     .index("by_token", ["token"])
     .index("by_user", ["userId"]),
 });
-
-// Note: Removed duplicate code that was in this file
-// You should keep the functions in their respective files (results.ts, etc.)

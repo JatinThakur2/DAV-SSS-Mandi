@@ -27,9 +27,17 @@ import { api } from "../../convex/_generated/api";
 function SchoolGallery() {
   const [currentTab, setCurrentTab] = useState(0);
   const [openImage, setOpenImage] = useState(null);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   // Fetch gallery events from Convex
   const galleryEvents = useQuery(api.gallery.getGalleryEvents) || [];
+
+  // Fetch the currently viewed event's images
+  const selectedEventImages =
+    useQuery(
+      api.gallery.getGalleryImagesByEvent,
+      selectedEventId ? { eventId: selectedEventId } : "skip"
+    ) || [];
 
   // Loading state
   const isLoading = galleryEvents === undefined;
@@ -61,6 +69,7 @@ function SchoolGallery() {
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
+    setSelectedEventId(null); // Reset selected event when changing tabs
   };
 
   const handleOpenImage = (image) => {
@@ -71,6 +80,10 @@ function SchoolGallery() {
     setOpenImage(null);
   };
 
+  const handleSelectEvent = (eventId) => {
+    setSelectedEventId(eventId);
+  };
+
   // Helper to get events by year - safely handles null or undefined
   const getEventsByYear = (year) => {
     if (!Array.isArray(galleryEvents)) return [];
@@ -78,25 +91,6 @@ function SchoolGallery() {
       (event) => event && event.date && event.date.includes(year)
     );
   };
-
-  // Pre-fetch all event images outside of the render loop
-  const eventImagesMap = useMemo(() => {
-    const imagesMap = new Map();
-
-    if (Array.isArray(galleryEvents)) {
-      galleryEvents.forEach((event) => {
-        if (event && event._id) {
-          const eventImages =
-            useQuery(api.gallery.getGalleryImagesByEvent, {
-              eventId: event._id,
-            }) || [];
-          imagesMap.set(event._id, eventImages);
-        }
-      });
-    }
-
-    return imagesMap;
-  }, [galleryEvents]);
 
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>
@@ -152,97 +146,141 @@ function SchoolGallery() {
             </Box>
           )}
 
-          {years.map((year, yearIndex) => (
-            <Box
-              key={yearIndex}
-              sx={{ display: currentTab === yearIndex ? "block" : "none" }}
-            >
-              <Typography
-                variant="h4"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center" }}
+          {years.map((year, yearIndex) => {
+            // Get events for this year
+            const yearEvents = getEventsByYear(year);
+
+            return (
+              <Box
+                key={yearIndex}
+                sx={{ display: currentTab === yearIndex ? "block" : "none" }}
               >
-                <CalendarIcon sx={{ mr: 1 }} />
-                Events of {year}
-              </Typography>
+                <Typography
+                  variant="h4"
+                  gutterBottom
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <CalendarIcon sx={{ mr: 1 }} />
+                  Events of {year}
+                </Typography>
 
-              <Grid container spacing={4}>
-                {getEventsByYear(year).length === 0 ? (
-                  <Grid item xs={12}>
-                    <Alert severity="info">
-                      No events found for the year {year}.
-                    </Alert>
-                  </Grid>
-                ) : (
-                  getEventsByYear(year).map((event) => {
-                    if (!event || !event._id) return null;
+                <Grid container spacing={4}>
+                  {yearEvents.length === 0 ? (
+                    <Grid item xs={12}>
+                      <Alert severity="info">
+                        No events found for the year {year}.
+                      </Alert>
+                    </Grid>
+                  ) : (
+                    yearEvents.map((event) => {
+                      if (!event || !event._id) return null;
 
-                    // Get pre-fetched images for this event
-                    const eventImages = eventImagesMap.get(event._id) || [];
+                      // Check if this is the selected event
+                      const isSelected = selectedEventId === event._id;
 
-                    return (
-                      <Grid item xs={12} sm={6} md={4} key={event._id}>
-                        <Card
-                          sx={{
-                            height: "100%",
-                            display: "flex",
-                            flexDirection: "column",
-                            transition: "transform 0.3s ease",
-                            "&:hover": {
-                              transform: "translateY(-5px)",
-                              boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
-                            },
-                          }}
-                        >
-                          <CardMedia
-                            component="img"
-                            height="200"
-                            image={
-                              event.thumbnail || "/api/placeholder/800/500"
-                            }
-                            alt={event.title || "Event"}
-                            sx={{ cursor: "pointer" }}
-                            onClick={() => {
-                              if (
-                                Array.isArray(eventImages) &&
-                                eventImages.length > 0 &&
-                                eventImages[0]?.imageUrl
-                              ) {
-                                handleOpenImage(eventImages[0].imageUrl);
-                              } else if (event.thumbnail) {
-                                handleOpenImage(event.thumbnail);
-                              }
+                      return (
+                        <Grid item xs={12} sm={6} md={4} key={event._id}>
+                          <Card
+                            sx={{
+                              height: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              transition: "transform 0.3s ease",
+                              "&:hover": {
+                                transform: "translateY(-5px)",
+                                boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
+                              },
+                              border: isSelected ? "2px solid" : "none",
+                              borderColor: isSelected
+                                ? "primary.main"
+                                : "transparent",
                             }}
-                          />
-                          <CardContent sx={{ flexGrow: 1 }}>
-                            <Typography variant="h6" gutterBottom>
-                              {event.title || "Untitled Event"}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                mb: 1,
-                              }}
-                            >
-                              <EventIcon fontSize="small" sx={{ mr: 0.5 }} />
-                              {event.date || "No date available"}
-                            </Typography>
-                            <Divider sx={{ my: 1 }} />
-                            <Typography variant="body2">
-                              {event.description || "No description available"}
-                            </Typography>
-                          </CardContent>
-                        </Card>
+                            onClick={() => handleSelectEvent(event._id)}
+                          >
+                            <CardMedia
+                              component="img"
+                              height="200"
+                              image={
+                                event.thumbnail || "/api/placeholder/800/500"
+                              }
+                              alt={event.title || "Event"}
+                              sx={{ cursor: "pointer" }}
+                            />
+                            <CardContent sx={{ flexGrow: 1 }}>
+                              <Typography variant="h6" gutterBottom>
+                                {event.title || "Untitled Event"}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  mb: 1,
+                                }}
+                              >
+                                <EventIcon fontSize="small" sx={{ mr: 0.5 }} />
+                                {event.date || "No date available"}
+                              </Typography>
+                              <Divider sx={{ my: 1 }} />
+                              <Typography variant="body2">
+                                {event.description ||
+                                  "No description available"}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      );
+                    })
+                  )}
+                </Grid>
+
+                {/* Display images for selected event */}
+                {selectedEventId && (
+                  <Box sx={{ mt: 4 }}>
+                    <Typography variant="h5" gutterBottom>
+                      Event Images
+                    </Typography>
+                    {selectedEventImages.length === 0 ? (
+                      <Alert severity="info">
+                        No images available for this event.
+                      </Alert>
+                    ) : (
+                      <Grid container spacing={2} sx={{ mt: 2 }}>
+                        {selectedEventImages.map((image, index) => (
+                          <Grid item xs={12} sm={6} md={4} key={index}>
+                            <Card>
+                              <CardMedia
+                                component="img"
+                                height="160"
+                                image={image.imageUrl}
+                                alt={image.caption || "Gallery image"}
+                                sx={{
+                                  cursor: "pointer",
+                                  objectFit: "cover",
+                                }}
+                                onClick={() => handleOpenImage(image.imageUrl)}
+                              />
+                              {image.caption && (
+                                <CardContent sx={{ py: 1 }}>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {image.caption}
+                                  </Typography>
+                                </CardContent>
+                              )}
+                            </Card>
+                          </Grid>
+                        ))}
                       </Grid>
-                    );
-                  })
+                    )}
+                  </Box>
                 )}
-              </Grid>
-            </Box>
-          ))}
+              </Box>
+            );
+          })}
         </>
       )}
 

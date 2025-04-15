@@ -24,6 +24,7 @@ export const addNews = mutation({
     date: v.string(),
     description: v.string(),
     isNotice: v.boolean(),
+    link: v.optional(v.string()), // Added link field
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("news", {
@@ -40,6 +41,7 @@ export const updateNews = mutation({
     date: v.string(),
     description: v.string(),
     isNotice: v.boolean(),
+    link: v.optional(v.string()), // Added link field
   },
   handler: async (ctx, args) => {
     const { id, ...data } = args;

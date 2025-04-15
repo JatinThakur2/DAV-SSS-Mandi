@@ -9,11 +9,16 @@ import {
   Grid,
   Skeleton,
   Alert,
+  Button,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { format, parseISO } from "date-fns";
+import {
+  OpenInNew as OpenInNewIcon,
+  ArrowForward as ArrowForwardIcon,
+} from "@mui/icons-material";
 
 const LatestNewsSection = () => {
   // Fetch news and notices from Convex
@@ -57,6 +62,12 @@ const LatestNewsSection = () => {
                     <Skeleton variant="text" width="60%" height={30} />
                     <Skeleton variant="text" width="30%" height={20} />
                     <Skeleton variant="text" height={50} />
+                    <Skeleton
+                      variant="rectangular"
+                      width={120}
+                      height={36}
+                      sx={{ mt: 1 }}
+                    />
                   </Box>
                 ))
               ) : latestNews.length === 0 ? (
@@ -65,7 +76,7 @@ const LatestNewsSection = () => {
               ) : (
                 // Display news
                 latestNews.map((newsItem) => (
-                  <Box key={newsItem._id} sx={{ mb: 2 }}>
+                  <Box key={newsItem._id} sx={{ mb: 3 }}>
                     <Typography variant="h6">{newsItem.title}</Typography>
                     <Typography
                       variant="body2"
@@ -74,11 +85,29 @@ const LatestNewsSection = () => {
                     >
                       {formatDate(newsItem.date)}
                     </Typography>
-                    <Typography variant="body1">
+                    <Typography variant="body1" sx={{ mb: 2 }}>
                       {newsItem.description.length > 150
                         ? `${newsItem.description.substring(0, 150)}...`
                         : newsItem.description}
                     </Typography>
+
+                    {/* Link button, only visible if link exists */}
+                    {newsItem.link && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        endIcon={<OpenInNewIcon />}
+                        component="a"
+                        href={newsItem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ mt: 1 }}
+                      >
+                        Click Here
+                      </Button>
+                    )}
+
+                    <Divider sx={{ my: 2 }} />
                   </Box>
                 ))
               )}
@@ -88,9 +117,14 @@ const LatestNewsSection = () => {
                 to="/news"
                 variant="body2"
                 color="inherit"
-                sx={{ textDecoration: "underline" }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                }}
               >
                 View All News
+                <ArrowForwardIcon sx={{ ml: 0.5, fontSize: 16 }} />
               </Link>
             </CardContent>
           </Card>
@@ -111,6 +145,12 @@ const LatestNewsSection = () => {
                     <Skeleton variant="text" width="60%" height={30} />
                     <Skeleton variant="text" width="30%" height={20} />
                     <Skeleton variant="text" height={50} />
+                    <Skeleton
+                      variant="rectangular"
+                      width={120}
+                      height={36}
+                      sx={{ mt: 1 }}
+                    />
                   </Box>
                 ))
               ) : latestNotices.length === 0 ? (
@@ -119,7 +159,7 @@ const LatestNewsSection = () => {
               ) : (
                 // Display notices
                 latestNotices.map((notice) => (
-                  <Box key={notice._id} sx={{ mb: 2 }}>
+                  <Box key={notice._id} sx={{ mb: 3 }}>
                     <Typography variant="h6">{notice.title}</Typography>
                     <Typography
                       variant="body2"
@@ -128,11 +168,30 @@ const LatestNewsSection = () => {
                     >
                       {formatDate(notice.date)}
                     </Typography>
-                    <Typography variant="body1">
+                    <Typography variant="body1" sx={{ mb: 2 }}>
                       {notice.description.length > 150
                         ? `${notice.description.substring(0, 150)}...`
                         : notice.description}
                     </Typography>
+
+                    {/* Link button, only visible if link exists */}
+                    {notice.link && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        endIcon={<OpenInNewIcon />}
+                        component="a"
+                        href={notice.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ mt: 1 }}
+                      >
+                        Click Here
+                      </Button>
+                    )}
+
+                    <Divider sx={{ my: 2 }} />
                   </Box>
                 ))
               )}
@@ -142,9 +201,14 @@ const LatestNewsSection = () => {
                 to="/notices"
                 variant="body2"
                 color="inherit"
-                sx={{ textDecoration: "underline" }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                }}
               >
                 View All Notices
+                <ArrowForwardIcon sx={{ ml: 0.5, fontSize: 16 }} />
               </Link>
             </CardContent>
           </Card>
