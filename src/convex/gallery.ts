@@ -20,7 +20,7 @@ export const getGalleryImagesByEvent = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("galleryImages")
-      .filter((q: any) => q.eq("eventId", args.eventId))
+      .filter((q) => q.eq(q.field("eventId"), args.eventId))
       .collect();
   },
 });

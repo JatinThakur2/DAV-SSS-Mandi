@@ -15,11 +15,15 @@ import {
   Grid,
   Skeleton,
   Alert,
+  CircularProgress,
+  Paper,
+  Chip,
 } from "@mui/material";
 import {
   Event as EventIcon,
   Close as CloseIcon,
   CalendarMonth as CalendarIcon,
+  PhotoLibrary as GalleryIcon,
 } from "@mui/icons-material";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -30,7 +34,12 @@ function SchoolGallery() {
   const [selectedEventId, setSelectedEventId] = useState(null);
 
   // Fetch gallery events from Convex
-  const galleryEvents = useQuery(api.gallery.getGalleryEvents) || [];
+  const galleryEventsResult = useQuery(api.gallery.getGalleryEvents);
+
+  // Use useMemo to memoize the galleryEvents array
+  const galleryEvents = useMemo(() => {
+    return galleryEventsResult || [];
+  }, [galleryEventsResult]);
 
   // Fetch the currently viewed event's images
   const selectedEventImages =
@@ -40,7 +49,8 @@ function SchoolGallery() {
     ) || [];
 
   // Loading state
-  const isLoading = galleryEvents === undefined;
+  const isLoading = galleryEventsResult === undefined;
+  const isLoadingImages = selectedEventId && selectedEventImages === undefined;
 
   // Get years for tabs - safely handle undefined or empty array
   const years = useMemo(() => {
@@ -89,6 +99,51 @@ function SchoolGallery() {
     if (!Array.isArray(galleryEvents)) return [];
     return galleryEvents.filter(
       (event) => event && event.date && event.date.includes(year)
+    );
+  };
+
+  // Function to render the gallery grid
+  const renderGalleryGrid = (images) => {
+    if (!images || images.length === 0) {
+      return <Alert severity="info">No images available for this event.</Alert>;
+    }
+
+    return (
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        {images.map((image, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <Card
+              sx={{
+                height: "100%",
+                transition: "transform 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 3,
+                },
+              }}
+            >
+              <CardMedia
+                component="img"
+                height="200"
+                image={image.imageUrl}
+                alt={image.caption || "Gallery image"}
+                sx={{
+                  cursor: "pointer",
+                  objectFit: "cover",
+                }}
+                onClick={() => handleOpenImage(image.imageUrl)}
+              />
+              {image.caption && (
+                <CardContent sx={{ py: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {image.caption}
+                  </Typography>
+                </CardContent>
+              )}
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     );
   };
 
@@ -206,7 +261,9 @@ function SchoolGallery() {
                               alt={event.title || "Event"}
                               sx={{ cursor: "pointer" }}
                             />
-                            <CardContent sx={{ flexGrow: 1 }}>
+                            <CardContent
+                              sx={{ flexGrow: 1, position: "relative" }}
+                            >
                               <Typography variant="h6" gutterBottom>
                                 {event.title || "Untitled Event"}
                               </Typography>
@@ -222,6 +279,22 @@ function SchoolGallery() {
                                 <EventIcon fontSize="small" sx={{ mr: 0.5 }} />
                                 {event.date || "No date available"}
                               </Typography>
+
+                              {/* Add an image count chip */}
+                              {isSelected && selectedEventImages && (
+                                <Chip
+                                  icon={<GalleryIcon />}
+                                  label={`${selectedEventImages.length} Images`}
+                                  size="small"
+                                  color="primary"
+                                  sx={{
+                                    position: "absolute",
+                                    top: 10,
+                                    right: 10,
+                                  }}
+                                />
+                              )}
+
                               <Divider sx={{ my: 1 }} />
                               <Typography variant="body2">
                                 {event.description ||
@@ -238,44 +311,31 @@ function SchoolGallery() {
                 {/* Display images for selected event */}
                 {selectedEventId && (
                   <Box sx={{ mt: 4 }}>
-                    <Typography variant="h5" gutterBottom>
-                      Event Images
-                    </Typography>
-                    {selectedEventImages.length === 0 ? (
-                      <Alert severity="info">
-                        No images available for this event.
-                      </Alert>
-                    ) : (
-                      <Grid container spacing={2} sx={{ mt: 2 }}>
-                        {selectedEventImages.map((image, index) => (
-                          <Grid item xs={12} sm={6} md={4} key={index}>
-                            <Card>
-                              <CardMedia
-                                component="img"
-                                height="160"
-                                image={image.imageUrl}
-                                alt={image.caption || "Gallery image"}
-                                sx={{
-                                  cursor: "pointer",
-                                  objectFit: "cover",
-                                }}
-                                onClick={() => handleOpenImage(image.imageUrl)}
-                              />
-                              {image.caption && (
-                                <CardContent sx={{ py: 1 }}>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    {image.caption}
-                                  </Typography>
-                                </CardContent>
-                              )}
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    )}
+                    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                      <Typography variant="h5" gutterBottom>
+                        {yearEvents.find((e) => e._id === selectedEventId)
+                          ?.title || "Event"}{" "}
+                        - Images
+                      </Typography>
+
+                      {isLoadingImages ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            p: 4,
+                          }}
+                        >
+                          <CircularProgress />
+                        </Box>
+                      ) : selectedEventImages.length === 0 ? (
+                        <Alert severity="info" sx={{ mt: 2 }}>
+                          No images available for this event.
+                        </Alert>
+                      ) : (
+                        renderGalleryGrid(selectedEventImages)
+                      )}
+                    </Paper>
                   </Box>
                 )}
               </Box>
@@ -285,7 +345,12 @@ function SchoolGallery() {
       )}
 
       {/* Image Popup Dialog */}
-      <Dialog open={!!openImage} onClose={handleCloseImage} maxWidth="lg">
+      <Dialog
+        open={!!openImage}
+        onClose={handleCloseImage}
+        maxWidth="lg"
+        fullWidth
+      >
         <DialogContent sx={{ p: 0, position: "relative" }}>
           <IconButton
             aria-label="close"
@@ -299,6 +364,7 @@ function SchoolGallery() {
               "&:hover": {
                 bgcolor: "rgba(0,0,0,0.7)",
               },
+              zIndex: 1,
             }}
           >
             <CloseIcon />
@@ -307,7 +373,12 @@ function SchoolGallery() {
             <img
               src={openImage}
               alt="Enlarged view"
-              style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
+              style={{
+                width: "100%",
+                maxHeight: "80vh",
+                objectFit: "contain",
+                display: "block",
+              }}
             />
           )}
         </DialogContent>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Box, Typography, Grid, Paper } from "@mui/material";
 import {
   School as SchoolIcon,
@@ -17,13 +17,16 @@ function StatsCounter() {
   });
   const sectionRef = useRef(null);
 
-  // Target values for counters
-  const targetCounts = {
-    established: 1944,
-    students: 1000,
-    faculty: 25,
-    pass: 100,
-  };
+  // Target values for counters - memoized to avoid recreation
+  const targetCounts = useMemo(
+    () => ({
+      established: 1944,
+      students: 1000,
+      faculty: 25,
+      pass: 100,
+    }),
+    []
+  );
 
   // Check if element is in viewport
   useEffect(() => {
@@ -37,12 +40,15 @@ function StatsCounter() {
       { threshold: 0.2 } // Trigger when 20% of the element is visible
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    // Store the current ref value in a variable to use in cleanup
+    const currentRef = sectionRef.current;
+
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (sectionRef.current) {
+      if (currentRef) {
         observer.disconnect();
       }
     };
@@ -76,7 +82,7 @@ function StatsCounter() {
     }, frameDuration);
 
     return () => clearInterval(counter);
-  }, [inView]);
+  }, [inView, targetCounts]);
 
   return (
     <Box

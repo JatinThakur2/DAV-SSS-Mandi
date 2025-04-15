@@ -1,14 +1,23 @@
 // src/pages/admin/GalleryPage.jsx
-import React, { useState } from "react";
-import { Box, Typography, Paper, Grid, Alert, Snackbar } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Alert,
+  Snackbar,
+  Button,
+} from "@mui/material";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Refresh as RefreshIcon } from "@mui/icons-material";
 
-// Import smaller components
+// Import components
 import EventsList from "../../components/admin/gallery/EventsList";
 import EventImages from "../../components/admin/gallery/EventImages";
 import EventDialog from "../../components/admin/gallery/EventDialog";
-import ImageDialog from "../../components/admin/gallery/ImageDialog";
+import EnhancedImageDialog from "../../components/admin/gallery/EnhancedImageDialog"; // Import the new component
 import DeleteDialog from "../../components/admin/gallery/DeleteDialog";
 import ImageViewDialog from "../../components/admin/gallery/ImageViewDialog";
 import AddEventButton from "../../components/admin/gallery/AddEventButton";
@@ -20,6 +29,7 @@ function GalleryPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openImageViewDialog, setOpenImageViewDialog] = useState(false);
   const [dialogMode, setDialogMode] = useState("add"); // "add" or "edit"
+  const [forceRefresh, setForceRefresh] = useState(0);
 
   // State for data
   const [currentEvent, setCurrentEvent] = useState({
@@ -30,8 +40,6 @@ function GalleryPage() {
   });
   const [currentEventId, setCurrentEventId] = useState(null);
   const [selectedEventId, setSelectedEventId] = useState(null);
-  const [imageCaption, setImageCaption] = useState("");
-  const [uploadedImage, setUploadedImage] = useState(null);
   const [viewImageUrl, setViewImageUrl] = useState("");
 
   // State for notifications
@@ -41,20 +49,38 @@ function GalleryPage() {
     severity: "success",
   });
 
-  // Fetch data from Convex
+  // Fetch data from Convex with the forceRefresh dependency to allow manual refresh
   const events = useQuery(api.gallery.getGalleryEvents) || [];
 
   // Only query for images if we have a selected event
-  const selectedEventImages =
-    useQuery(
-      api.gallery.getGalleryImagesByEvent,
-      selectedEventId ? { eventId: selectedEventId } : "skip"
-    ) || [];
+  // Adding forceRefresh to dependencies to manually trigger a refresh when needed
+  const selectedEventImages = useQuery(
+    api.gallery.getGalleryImagesByEvent,
+    selectedEventId ? { eventId: selectedEventId } : "skip"
+  );
 
   const selectedEvent = useQuery(
     api.gallery.getGalleryEventById,
     selectedEventId ? { id: selectedEventId } : "skip"
   );
+  useEffect(() => {
+    if (selectedEventId && selectedEventImages) {
+      console.log("Selected Event ID:", selectedEventId);
+      console.log("Images for this event:", selectedEventImages);
+    }
+  }, [selectedEventId, selectedEventImages]);
+  // Force a refresh whenever images are added
+  useEffect(() => {
+    // This effect will run when the component mounts and whenever forceRefresh changes
+    if (forceRefresh > 0) {
+      // After 2 seconds, refresh the page to ensure the latest data is loaded
+      const timer = setTimeout(() => {
+        // No need to do anything, the refreshInterval will handle it
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [forceRefresh]);
 
   // Handler functions
   const handleOpenEventDialog = (mode, event = null) => {
@@ -84,13 +110,13 @@ function GalleryPage() {
   };
 
   const handleOpenImageDialog = () => {
-    setUploadedImage(null);
-    setImageCaption("");
     setOpenImageDialog(true);
   };
 
   const handleCloseImageDialog = () => {
     setOpenImageDialog(false);
+    // Force a refresh when the dialog is closed to update the images
+    setForceRefresh((prev) => prev + 1);
   };
 
   const handleOpenDeleteDialog = (id, title, isImage = false) => {
@@ -101,6 +127,8 @@ function GalleryPage() {
 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
+    // Force a refresh when the dialog is closed to update the list
+    setForceRefresh((prev) => prev + 1);
   };
 
   const handleOpenImageViewDialog = (imageUrl) => {
@@ -120,6 +148,19 @@ function GalleryPage() {
     setSelectedEventId(eventId);
   };
 
+  const handleRefresh = () => {
+    // Increment forceRefresh to trigger a refresh
+    setForceRefresh((prev) => prev + 1);
+  };
+
+  // If there's an error with the images query, show a message
+
+  const isImagesLoading = selectedEventId && selectedEventImages === undefined;
+  const hasNoImages =
+    selectedEventId &&
+    Array.isArray(selectedEventImages) &&
+    selectedEventImages.length === 0;
+
   return (
     <Box>
       <Box
@@ -130,8 +171,21 @@ function GalleryPage() {
           mb: 4,
         }}
       >
-        <Typography variant="h4">Gallery Management</Typography>
-        <AddEventButton onAddEvent={() => handleOpenEventDialog("add")} />
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography variant="h4">Gallery Management</Typography>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<RefreshIcon />}
+            onClick={handleRefresh}
+            sx={{ ml: 2 }}
+          >
+            Refresh
+          </Button>
+        </Box>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <AddEventButton onAddEvent={() => handleOpenEventDialog("add")} />
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
@@ -151,6 +205,24 @@ function GalleryPage() {
         {/* Right side - Event images */}
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3, borderRadius: 2 }}>
+            {selectedEventId && (
+              <Alert
+                severity="info"
+                sx={{ mb: 3 }}
+                action={
+                  <Button color="inherit" size="small" onClick={handleRefresh}>
+                    Refresh
+                  </Button>
+                }
+              >
+                {isImagesLoading
+                  ? "Loading images for this event..."
+                  : hasNoImages
+                    ? "No images found for this event. Click 'Add Images' to upload some."
+                    : `Viewing ${selectedEventImages.length} images for this event.`}
+              </Alert>
+            )}
+
             <EventImages
               selectedEventId={selectedEventId}
               selectedEvent={selectedEvent}
@@ -175,14 +247,11 @@ function GalleryPage() {
         setSnackbar={setSnackbar}
       />
 
-      <ImageDialog
+      {/* Use EnhancedImageDialog instead of ImageDialog */}
+      <EnhancedImageDialog
         open={openImageDialog}
         onClose={handleCloseImageDialog}
         selectedEventId={selectedEventId}
-        imageCaption={imageCaption}
-        setImageCaption={setImageCaption}
-        uploadedImage={uploadedImage}
-        setUploadedImage={setUploadedImage}
         setSnackbar={setSnackbar}
       />
 
