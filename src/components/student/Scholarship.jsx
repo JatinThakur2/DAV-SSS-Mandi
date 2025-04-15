@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Typography,
   Box,
+  Grid,
   Paper,
   Tabs,
   Tab,
@@ -13,7 +14,9 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Grid,
+  Skeleton,
+  Alert,
+  Chip,
 } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
@@ -21,149 +24,41 @@ import {
   EmojiEvents as AwardIcon,
   LocalLibrary as LibraryIcon,
 } from "@mui/icons-material";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 function Scholarship() {
   const [tabValue, setTabValue] = useState(0);
 
+  // Fetch scholarships from Convex
+  const scholarships = useQuery(api.scholarships.getScholarships) || [];
+  const governmentScholarships = scholarships.filter(
+    (s) => s.type === "government"
+  );
+  const privateScholarships = scholarships.filter((s) => s.type === "private");
+
+  // Loading state
+  const isLoading = scholarships === undefined;
+
+  // Get unique years for filtering recipients
+  const allYears = [
+    ...new Set(
+      scholarships
+        .flatMap((s) => s.recipients.map((r) => r.year))
+        .filter(Boolean)
+    ),
+  ]
+    .sort()
+    .reverse();
+
+  // Default to the most recent year if available
+  const currentYear =
+    allYears.length > 0
+      ? allYears[tabValue]
+      : new Date().getFullYear().toString();
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-  };
-
-  // Scholarship data from student zone.txt
-  const governmentScholarships = [
-    "Swami Vivekanand Scholarship (Gen)",
-    "Dr. Ambedkar Medhavi Chayravriti Yojna (SC/ST)",
-    "Centrally Sponsored Pre Matric Scholarship (SC/ST)",
-    "Centrally Sponsored Post Matric Scholarship (SC/ST)",
-    "PM Yashavi Pre Matric Scholarship (OBC/EBC/DNT)",
-    "PM Yashavi Post Matric Scholarship (OBC/EBC/DNT)",
-  ];
-
-  const privateScholarships = [
-    {
-      name: "NVM Memorial Prize",
-      description:
-        "For outstanding performance in academic and extracurricular activities Class 10th",
-    },
-    {
-      name: "Bhom Prakash and Bhagwati Devi Memorial Scholarship",
-      description: "Toppers in Science especially girl child in 10th and 11th",
-    },
-    {
-      name: "Devkinandan Malhotra Scholarship",
-      description:
-        "Two students for their outstanding performance in Class X and Class XI",
-    },
-  ];
-
-  // Scholarship recipients data
-  const recipients2025 = {
-    private: [
-      {
-        scholarship: "NVM Memorial Prize",
-        recipients: ["KARTIK MANDYAL S/O Sh RAKESH KUMAR Rs 6332/-"],
-      },
-      {
-        scholarship: "Bhom Parkash and Bhagwati Devi Memorial Scholarship",
-        recipients: [
-          "JIYA D/O Sh JANAK RAJ Rs 4962/-",
-          "KARTIK MANDYAL S/O Sh Rakesh Kumar Rs 4962/-",
-        ],
-      },
-      {
-        scholarship: "Devkinandan Malhotra Memorial Scholarship",
-        recipients: [
-          "Sunakshi D/O Sh Naval Kishore Class X Rs 3000/-",
-          "Jiya D/O Sh Janka Raj Class XI Rs 1500/-",
-          "Himanshu S/O Sh Khem Chand Class XI Rs 1500/-",
-        ],
-      },
-    ],
-    government: [
-      {
-        scholarship: "PM Yasasvi Pre Matric Scholarship (OBC)",
-        recipients: ["Nishikant Kumar Class X"],
-      },
-      {
-        scholarship: "PM Yasasvi Post Matric Scholarship (OBC)",
-        recipients: ["Sunakshi XI", "Devanshi XI", "Jatin XII"],
-      },
-      {
-        scholarship: "Centrally Sponsored Post Matric Scholarship (SC/ST)",
-        recipients: ["Yashwant Kumar Class XII", "Vibhore Class XII"],
-      },
-      {
-        scholarship: "Centrally Sponsored Pre Matric Scholarship (SC/ST)",
-        recipients: [
-          "Anshika Suryavanshi Class IX",
-          "Kritika Saklani Class IX",
-          "Shubham Class X",
-          "Hiten Class X",
-          "Rajat Class X",
-          "Mannat Class X",
-        ],
-      },
-      {
-        scholarship: "Swami Vivekanand Scholarship (Gen)",
-        recipients: ["Suhani Class XII", "Sonali Class XII"],
-      },
-    ],
-  };
-
-  const recipients2024 = {
-    private: [
-      {
-        scholarship: "NVM Memorial Prize",
-        recipients: ["AAYUSHI D/O Sh Praveen Rs 6332/-"],
-      },
-      {
-        scholarship: "Bhom Parkash and Bhagwati Devi Memorial Scholarship",
-        recipients: [
-          "Suhani D/O Sh Ram Lal Rs 4962/-",
-          "Mahima D/O Sh Surender Kumar Rs 4962/-",
-        ],
-      },
-      {
-        scholarship: "Devkinandan Malhotra Memorial Scholarship",
-        recipients: [
-          "Suhani D/O Sh Ram Lal Class X Rs 3000/-",
-          "Mahima D/O Sh Surender Kumar Class XI Rs 3000/-",
-        ],
-      },
-    ],
-    government: [
-      {
-        scholarship: "Dr Ambedkar Medhavi Chhatravati yojna",
-        recipients: ["Yashika (SC) Topper X Rs 18,000/-"],
-      },
-      {
-        scholarship: "PM Yasasvi Pre Matric Scholarship (OBC)",
-        recipients: ["Devanshi Class X", "Sunakshi Class X"],
-      },
-      {
-        scholarship: "PM Yasasvi Post Matric Scholarship (OBC)",
-        recipients: ["Nitesh Kumar XII", "Adarsh Thakur XII", "Jatin XI"],
-      },
-      {
-        scholarship: "Centrally Sponsored Post Matric Scholarship (SC/ST)",
-        recipients: ["Daksh Barpagga Class XI", "Vibhore Class XI"],
-      },
-      {
-        scholarship: "Centrally Sponsored Pre Matric Scholarship (SC/ST)",
-        recipients: [
-          "Shubham Class IX",
-          "Hiten Class IX",
-          "Rajat Class IX",
-          "Anuj Kumar Class IX",
-          "Dherya Class IX",
-          "Mannat Class IX",
-        ],
-      },
-      {
-        scholarship: "Swami Vivekanand Scholarship (Gen)",
-        recipients: ["Suhani Class XI", "Sonali Class XI"],
-      },
-    ],
   };
 
   return (
@@ -172,212 +67,258 @@ function Scholarship() {
         Scholarships
       </Typography>
 
-      <Grid container spacing={4}>
-        {/* Available Scholarships */}
-        <Grid item xs={12} md={5}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h5" gutterBottom color="primary">
-              Available Scholarships
-            </Typography>
-
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="government-scholarships-content"
-                id="government-scholarships-header"
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ display: "flex", alignItems: "center" }}
-                >
-                  <SchoolIcon sx={{ mr: 1, color: "primary.main" }} />
-                  Government Scholarships
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <List>
-                  {governmentScholarships.map((scholarship, index) => (
-                    <ListItem key={index}>
-                      <ListItemIcon>
-                        <SchoolIcon color="primary" />
-                      </ListItemIcon>
-                      <ListItemText primary={scholarship} />
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion sx={{ mt: 2 }}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="private-scholarships-content"
-                id="private-scholarships-header"
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ display: "flex", alignItems: "center" }}
-                >
-                  <AwardIcon sx={{ mr: 1, color: "primary.main" }} />
-                  Private Scholarships
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <List>
-                  {privateScholarships.map((scholarship, index) => (
-                    <ListItem key={index}>
-                      <ListItemText
-                        primary={scholarship.name}
-                        secondary={scholarship.description}
-                        primaryTypographyProps={{ fontWeight: "bold" }}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionDetails>
-            </Accordion>
-          </Paper>
-        </Grid>
-
-        {/* Scholarship Recipients */}
-        <Grid item xs={12} md={7}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h5" gutterBottom color="primary">
-              Scholarship Recipients
-            </Typography>
-
+      {isLoading ? (
+        // Loading skeleton
+        <Box sx={{ mb: 4 }}>
+          <Skeleton variant="rectangular" height={48} sx={{ mb: 3 }} />
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={5}>
+              <Skeleton variant="rectangular" height={300} />
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <Skeleton variant="rectangular" height={300} />
+            </Grid>
+          </Grid>
+        </Box>
+      ) : scholarships.length === 0 ? (
+        // No scholarships case
+        <Alert severity="info" sx={{ mb: 4 }}>
+          No scholarship information available at the moment.
+        </Alert>
+      ) : (
+        <>
+          {allYears.length > 0 && (
             <Tabs
-              value={tabValue}
+              value={tabValue < allYears.length ? tabValue : 0}
               onChange={handleTabChange}
               indicatorColor="primary"
               textColor="primary"
               centered
               sx={{ mb: 3 }}
             >
-              <Tab label="2024-2025" />
-              <Tab label="2023-2024" />
+              {allYears.map((year) => (
+                <Tab key={year} label={year} />
+              ))}
             </Tabs>
+          )}
 
-            {tabValue === 0 ? (
-              <Box>
-                <Typography variant="h6" gutterBottom>
-                  <AwardIcon sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Private Scholarships (2024-2025)
+          <Grid container spacing={4}>
+            {/* Available Scholarships */}
+            <Grid item xs={12} md={5}>
+              <Paper elevation={3} sx={{ p: 3 }}>
+                <Typography variant="h5" gutterBottom color="primary">
+                  Available Scholarships
                 </Typography>
 
-                {recipients2025.private.map((item, index) => (
-                  <Box key={index} sx={{ mb: 3 }}>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="government-scholarships-content"
+                    id="government-scholarships-header"
+                  >
                     <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      color="primary"
+                      variant="h6"
+                      sx={{ display: "flex", alignItems: "center" }}
                     >
-                      {item.scholarship}
+                      <SchoolIcon sx={{ mr: 1, color: "primary.main" }} />
+                      Government Scholarships
                     </Typography>
-                    <List dense>
-                      {item.recipients.map((recipient, idx) => (
-                        <ListItem key={idx}>
-                          <ListItemIcon>
-                            <LibraryIcon color="primary" />
-                          </ListItemIcon>
-                          <ListItemText primary={recipient} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                ))}
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {governmentScholarships.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No government scholarships available.
+                      </Typography>
+                    ) : (
+                      <List>
+                        {governmentScholarships.map((scholarship) => (
+                          <ListItem key={scholarship._id}>
+                            <ListItemIcon>
+                              <SchoolIcon color="primary" />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={scholarship.name}
+                              secondary={scholarship.description}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    )}
+                  </AccordionDetails>
+                </Accordion>
 
-                <Divider sx={{ my: 3 }} />
+                <Accordion sx={{ mt: 2 }}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="private-scholarships-content"
+                    id="private-scholarships-header"
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
+                      <AwardIcon sx={{ mr: 1, color: "primary.main" }} />
+                      Private Scholarships
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {privateScholarships.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No private scholarships available.
+                      </Typography>
+                    ) : (
+                      <List>
+                        {privateScholarships.map((scholarship) => (
+                          <ListItem key={scholarship._id}>
+                            <ListItemText
+                              primary={scholarship.name}
+                              secondary={scholarship.description}
+                              primaryTypographyProps={{ fontWeight: "bold" }}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    )}
+                  </AccordionDetails>
+                </Accordion>
+              </Paper>
+            </Grid>
 
-                <Typography variant="h6" gutterBottom>
-                  <SchoolIcon sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Government Scholarships (2024-2025)
+            {/* Scholarship Recipients */}
+            <Grid item xs={12} md={7}>
+              <Paper elevation={3} sx={{ p: 3 }}>
+                <Typography variant="h5" gutterBottom color="primary">
+                  Scholarship Recipients for {currentYear}
                 </Typography>
 
-                {recipients2025.government.map((item, index) => (
-                  <Box key={index} sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      color="primary"
-                    >
-                      {item.scholarship}
-                    </Typography>
-                    <List dense>
-                      {item.recipients.map((recipient, idx) => (
-                        <ListItem key={idx}>
-                          <ListItemIcon>
-                            <SchoolIcon color="primary" />
-                          </ListItemIcon>
-                          <ListItemText primary={recipient} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                ))}
-              </Box>
-            ) : (
-              <Box>
-                <Typography variant="h6" gutterBottom>
-                  <AwardIcon sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Private Scholarships (2023-2024)
-                </Typography>
+                <Box>
+                  <Typography variant="h6" gutterBottom>
+                    <AwardIcon sx={{ verticalAlign: "middle", mr: 1 }} />
+                    Private Scholarships Recipients
+                  </Typography>
 
-                {recipients2024.private.map((item, index) => (
-                  <Box key={index} sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      color="primary"
-                    >
-                      {item.scholarship}
-                    </Typography>
-                    <List dense>
-                      {item.recipients.map((recipient, idx) => (
-                        <ListItem key={idx}>
-                          <ListItemIcon>
-                            <LibraryIcon color="primary" />
-                          </ListItemIcon>
-                          <ListItemText primary={recipient} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                ))}
+                  {privateScholarships
+                    .filter((item) =>
+                      item.recipients.some((r) => r.year === currentYear)
+                    )
+                    .map((item) => (
+                      <Box key={item._id} sx={{ mb: 3 }}>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="bold"
+                          color="primary"
+                        >
+                          {item.name}
+                        </Typography>
+                        <List dense>
+                          {item.recipients
+                            .filter((r) => r.year === currentYear)
+                            .map((recipient, idx) => (
+                              <ListItem key={idx}>
+                                <ListItemIcon>
+                                  <LibraryIcon color="primary" />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={recipient.name}
+                                  secondary={recipient.details}
+                                />
+                              </ListItem>
+                            ))}
+                          {item.recipients.filter((r) => r.year === currentYear)
+                            .length === 0 && (
+                            <ListItem>
+                              <ListItemText
+                                primary={
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    fontStyle="italic"
+                                  >
+                                    No recipients for {currentYear}
+                                  </Typography>
+                                }
+                              />
+                            </ListItem>
+                          )}
+                        </List>
+                      </Box>
+                    ))}
 
-                <Divider sx={{ my: 3 }} />
+                  {privateScholarships.filter((item) =>
+                    item.recipients.some((r) => r.year === currentYear)
+                  ).length === 0 && (
+                    <Alert severity="info" sx={{ mb: 3 }}>
+                      No private scholarship recipients for {currentYear}.
+                    </Alert>
+                  )}
 
-                <Typography variant="h6" gutterBottom>
-                  <SchoolIcon sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Government Scholarships (2023-2024)
-                </Typography>
+                  <Divider sx={{ my: 3 }} />
 
-                {recipients2024.government.map((item, index) => (
-                  <Box key={index} sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      color="primary"
-                    >
-                      {item.scholarship}
-                    </Typography>
-                    <List dense>
-                      {item.recipients.map((recipient, idx) => (
-                        <ListItem key={idx}>
-                          <ListItemIcon>
-                            <SchoolIcon color="primary" />
-                          </ListItemIcon>
-                          <ListItemText primary={recipient} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
+                  <Typography variant="h6" gutterBottom>
+                    <SchoolIcon sx={{ verticalAlign: "middle", mr: 1 }} />
+                    Government Scholarships Recipients
+                  </Typography>
+
+                  {governmentScholarships
+                    .filter((item) =>
+                      item.recipients.some((r) => r.year === currentYear)
+                    )
+                    .map((item) => (
+                      <Box key={item._id} sx={{ mb: 3 }}>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="bold"
+                          color="primary"
+                        >
+                          {item.name}
+                        </Typography>
+                        <List dense>
+                          {item.recipients
+                            .filter((r) => r.year === currentYear)
+                            .map((recipient, idx) => (
+                              <ListItem key={idx}>
+                                <ListItemIcon>
+                                  <SchoolIcon color="primary" />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={recipient.name}
+                                  secondary={recipient.details}
+                                />
+                              </ListItem>
+                            ))}
+                          {item.recipients.filter((r) => r.year === currentYear)
+                            .length === 0 && (
+                            <ListItem>
+                              <ListItemText
+                                primary={
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    fontStyle="italic"
+                                  >
+                                    No recipients for {currentYear}
+                                  </Typography>
+                                }
+                              />
+                            </ListItem>
+                          )}
+                        </List>
+                      </Box>
+                    ))}
+
+                  {governmentScholarships.filter((item) =>
+                    item.recipients.some((r) => r.year === currentYear)
+                  ).length === 0 && (
+                    <Alert severity="info">
+                      No government scholarship recipients for {currentYear}.
+                    </Alert>
+                  )}
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </>
+      )}
     </Box>
   );
 }

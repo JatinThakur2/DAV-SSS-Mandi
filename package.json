@@ -8,6 +8,7 @@
     "@mui/icons-material": "^6.2.0",
     "@mui/material": "^6.2.0",
     "@mui/x-date-pickers": "^7.28.3",
+    "convex": "^1.23.0",
     "cra-template": "1.2.0",
     "date-fns": "^2.29.3",
     "react": "^19.0.0",
@@ -21,7 +22,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "npm start"
   },
   "eslintConfig": {
     "extends": [

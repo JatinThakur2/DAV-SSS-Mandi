@@ -16,6 +16,9 @@ import { routes } from "./routes";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 
+// Import AuthProvider
+import { AuthProvider } from "./contexts/AuthContext";
+
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -79,37 +82,23 @@ function ScrollToTop() {
 
 // Main App Routing Component
 function AppRoutes() {
+  const location = useLocation();
+  // Check if the current route is an admin route
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <ScrollToTop />
-      <Navbar />
+      {!isAdminRoute && <Navbar />}
       <Box sx={{ flex: 1 }}>
         <Suspense fallback={<Loader />}>
           <ErrorBoundary>{useRoutes(routes)}</ErrorBoundary>
         </Suspense>
       </Box>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </Box>
   );
 }
-
-// Custom Font Links Component
-// function FontLinks() {
-//   return (
-//     <React.Fragment>
-//       <link rel="preconnect" href="https://fonts.googleapis.com" />
-//       <link
-//         rel="preconnect"
-//         href="https://fonts.gstatic.com"
-//         crossOrigin="anonymous"
-//       />
-//       <link
-//         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-//         rel="stylesheet"
-//       />
-//     </React.Fragment>
-//   );
-// }
 
 // Main App Component
 function App() {
@@ -143,7 +132,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </Router>
     </ThemeProvider>
   );

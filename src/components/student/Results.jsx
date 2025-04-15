@@ -15,106 +15,36 @@ import {
   CardContent,
   Divider,
   Grid,
+  Skeleton,
+  Alert,
 } from "@mui/material";
 import {
   EmojiEvents as AwardIcon,
   School as SchoolIcon,
 } from "@mui/icons-material";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 function Results() {
   const [tabValue, setTabValue] = useState(0);
 
+  // Fetch results from Convex
+  const allResults = useQuery(api.results.getResults) || [];
+
+  // Get unique years for tabs
+  const years = [...new Set(allResults.map((result) => result.year))]
+    .sort()
+    .reverse();
+
+  // Set the default tab value based on available years
+  React.useEffect(() => {
+    if (years.length > 0 && tabValue >= years.length) {
+      setTabValue(0);
+    }
+  }, [years, tabValue]);
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-  };
-
-  // Results data from student zone.txt
-  const results2023 = {
-    class10: [
-      { position: "1st", name: "SUHANI", marks: "654/700" },
-      { position: "2nd", name: "AAYUSHI", marks: "625/700" },
-      { position: "3rd", name: "JIYA", marks: "610/700" },
-    ],
-    class12Arts: [
-      { position: "1st", name: "SHIVANSH SHARMA", marks: "406/500" },
-      { position: "2nd", name: "KAVYANSH", marks: "405/500" },
-      { position: "3rd", name: "ANAMIKA SHARMA", marks: "388/500" },
-    ],
-    class12Commerce: [
-      { position: "1st", name: "TANISHA", marks: "422/500" },
-      { position: "2nd", name: "DIKSHA THAKUR", marks: "382/500" },
-      { position: "3rd", name: "AKSHAT SHARMA", marks: "332/500" },
-    ],
-    class12Science: [
-      { position: "1st", name: "YUKTA", marks: "438/500" },
-      { position: "2nd", name: "MANIKA SHARMA", marks: "423/500" },
-      { position: "3rd", name: "PANKAJ", marks: "408/500" },
-    ],
-  };
-
-  const results2021 = {
-    summary: {
-      class10: {
-        totalStudents: 42,
-        passed: 42,
-        result: "100%",
-        firstPosition: {
-          name: "Yukta",
-          marks: "643/700",
-          percentage: "91.85%",
-        },
-        secondPosition: {
-          name: "YuvRaj",
-          marks: "610/700",
-          percentage: "87.14%",
-        },
-      },
-      class12Science: {
-        totalStudents: 25,
-        passed: 25,
-        result: "100%",
-        firstPosition: {
-          name: "Nancy Chandel",
-          marks: "767/500",
-          percentage: "93%",
-        },
-        secondPosition: {
-          name: "Nikita Kumari",
-          marks: "449/500",
-          percentage: "90%",
-        },
-      },
-      class12Arts: {
-        totalStudents: 21,
-        passed: 21,
-        result: "100%",
-        firstPosition: {
-          name: "Gayatri Saini",
-          marks: "480/500",
-          percentage: "96%",
-        },
-        secondPosition: {
-          name: "Anshika Yadav",
-          marks: "432/500",
-          percentage: "86.4%",
-        },
-      },
-      class12Commerce: {
-        totalStudents: 6,
-        passed: 3,
-        result: "100%",
-        firstPosition: {
-          name: "Anshika Thakur",
-          marks: "364/500",
-          percentage: "72.8%",
-        },
-        secondPosition: {
-          name: "Kavisha",
-          marks: "336/500",
-          percentage: "67.2%",
-        },
-      },
-    },
   };
 
   // Helper function to get medal color based on position
@@ -131,738 +61,468 @@ function Results() {
     }
   };
 
+  // Loading state
+  const isLoading = allResults === undefined;
+
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
         Academic Results
       </Typography>
 
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        indicatorColor="primary"
-        textColor="primary"
-        centered
-        sx={{ mb: 3 }}
-      >
-        <Tab label="2023-2024" />
-        <Tab label="2020-2021" />
-      </Tabs>
-
-      {tabValue === 0 ? (
-        <Grid container spacing={4}>
-          {/* Class 10 Results */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <SchoolIcon sx={{ mr: 1 }} />
-                Class X Results
-              </Typography>
-
-              <TableContainer
-                component={Paper}
-                variant="outlined"
-                sx={{ mt: 2 }}
-              >
-                <Table aria-label="class 10 results table">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "primary.main" }}>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Position
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Name
-                      </TableCell>
-                      <TableCell
-                        sx={{ color: "white", fontWeight: "bold" }}
-                        align="right"
-                      >
-                        Marks
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {results2023.class10.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              backgroundColor: getMedalColor(result.position),
-                              color: "white",
-                              borderRadius: "4px",
-                              px: 1,
-                              py: 0.5,
-                              width: "fit-content",
-                            }}
-                          >
-                            <AwardIcon sx={{ mr: 0.5, fontSize: "1rem" }} />
-                            {result.position}
-                          </Box>
-                        </TableCell>
-                        <TableCell>{result.name}</TableCell>
-                        <TableCell align="right">{result.marks}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Class 12 Arts Results */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <SchoolIcon sx={{ mr: 1 }} />
-                Class XII (Arts) Results
-              </Typography>
-
-              <TableContainer
-                component={Paper}
-                variant="outlined"
-                sx={{ mt: 2 }}
-              >
-                <Table aria-label="class 12 arts results table">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "primary.main" }}>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Position
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Name
-                      </TableCell>
-                      <TableCell
-                        sx={{ color: "white", fontWeight: "bold" }}
-                        align="right"
-                      >
-                        Marks
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {results2023.class12Arts.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              backgroundColor: getMedalColor(result.position),
-                              color: "white",
-                              borderRadius: "4px",
-                              px: 1,
-                              py: 0.5,
-                              width: "fit-content",
-                            }}
-                          >
-                            <AwardIcon sx={{ mr: 0.5, fontSize: "1rem" }} />
-                            {result.position}
-                          </Box>
-                        </TableCell>
-                        <TableCell>{result.name}</TableCell>
-                        <TableCell align="right">{result.marks}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Class 12 Commerce Results */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <SchoolIcon sx={{ mr: 1 }} />
-                Class XII (Commerce) Results
-              </Typography>
-
-              <TableContainer
-                component={Paper}
-                variant="outlined"
-                sx={{ mt: 2 }}
-              >
-                <Table aria-label="class 12 commerce results table">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "primary.main" }}>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Position
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Name
-                      </TableCell>
-                      <TableCell
-                        sx={{ color: "white", fontWeight: "bold" }}
-                        align="right"
-                      >
-                        Marks
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {results2023.class12Commerce.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              backgroundColor: getMedalColor(result.position),
-                              color: "white",
-                              borderRadius: "4px",
-                              px: 1,
-                              py: 0.5,
-                              width: "fit-content",
-                            }}
-                          >
-                            <AwardIcon sx={{ mr: 0.5, fontSize: "1rem" }} />
-                            {result.position}
-                          </Box>
-                        </TableCell>
-                        <TableCell>{result.name}</TableCell>
-                        <TableCell align="right">{result.marks}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Class 12 Science Results */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <SchoolIcon sx={{ mr: 1 }} />
-                Class XII (Science) Results
-              </Typography>
-
-              <TableContainer
-                component={Paper}
-                variant="outlined"
-                sx={{ mt: 2 }}
-              >
-                <Table aria-label="class 12 science results table">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "primary.main" }}>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Position
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                        Name
-                      </TableCell>
-                      <TableCell
-                        sx={{ color: "white", fontWeight: "bold" }}
-                        align="right"
-                      >
-                        Marks
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {results2023.class12Science.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              backgroundColor: getMedalColor(result.position),
-                              color: "white",
-                              borderRadius: "4px",
-                              px: 1,
-                              py: 0.5,
-                              width: "fit-content",
-                            }}
-                          >
-                            <AwardIcon sx={{ mr: 0.5, fontSize: "1rem" }} />
-                            {result.position}
-                          </Box>
-                        </TableCell>
-                        <TableCell>{result.name}</TableCell>
-                        <TableCell align="right">{result.marks}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-        </Grid>
+      {isLoading ? (
+        // Loading skeleton
+        <>
+          <Skeleton variant="rectangular" height={48} sx={{ mb: 3 }} />
+          <Skeleton variant="rectangular" height={400} />
+        </>
+      ) : years.length === 0 ? (
+        // No results case
+        <Alert severity="info" sx={{ my: 3 }}>
+          No examination results available at the moment.
+        </Alert>
       ) : (
-        <Box>
-          <Typography variant="h5" gutterBottom align="center">
-            Academic Session 2020-21
-          </Typography>
+        <>
+          <Tabs
+            value={tabValue < years.length ? tabValue : 0}
+            onChange={handleTabChange}
+            indicatorColor="primary"
+            textColor="primary"
+            centered
+            sx={{ mb: 3 }}
+          >
+            {years.map((year, index) => (
+              <Tab key={year} label={year} />
+            ))}
+          </Tabs>
 
-          <Grid container spacing={4}>
-            {/* Class 10 Results */}
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom color="primary">
-                    Class Tenth
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
+          {years.map((year, yearIndex) => {
+            // Filter results by the selected year
+            const yearResults = allResults.filter(
+              (result) => result.year === year
+            );
 
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">
-                        Total Students Appeared
+            return (
+              <Box
+                key={year}
+                sx={{ display: tabValue === yearIndex ? "block" : "none" }}
+              >
+                <Grid container spacing={4}>
+                  {/* Class 10 Results */}
+                  {yearResults
+                    .filter((result) => result.class === "10")
+                    .map((result) => (
+                      <Grid item xs={12} md={6} key={result._id}>
+                        <Paper elevation={3} sx={{ p: 3 }}>
+                          <Typography
+                            variant="h5"
+                            gutterBottom
+                            sx={{ display: "flex", alignItems: "center" }}
+                          >
+                            <SchoolIcon sx={{ mr: 1 }} />
+                            Class XII (Arts) Results
+                          </Typography>
+
+                          <TableContainer
+                            component={Paper}
+                            variant="outlined"
+                            sx={{ mt: 2 }}
+                          >
+                            <Table aria-label="class 12 arts results table">
+                              <TableHead>
+                                <TableRow
+                                  sx={{ backgroundColor: "primary.main" }}
+                                >
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                  >
+                                    Position
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                  >
+                                    Name
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                    align="right"
+                                  >
+                                    Marks
+                                  </TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {result.data.map((student, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          backgroundColor: getMedalColor(
+                                            student.position
+                                          ),
+                                          color: "white",
+                                          borderRadius: "4px",
+                                          px: 1,
+                                          py: 0.5,
+                                          width: "fit-content",
+                                        }}
+                                      >
+                                        <AwardIcon
+                                          sx={{ mr: 0.5, fontSize: "1rem" }}
+                                        />
+                                        {student.position}
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell>{student.name}</TableCell>
+                                    <TableCell align="right">
+                                      {student.marks}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </Paper>
+                      </Grid>
+                    ))}
+
+                  {/* Class 12 Commerce Results */}
+                  {yearResults
+                    .filter((result) => result.class === "12Commerce")
+                    .map((result) => (
+                      <Grid item xs={12} md={6} key={result._id}>
+                        <Paper elevation={3} sx={{ p: 3 }}>
+                          <Typography
+                            variant="h5"
+                            gutterBottom
+                            sx={{ display: "flex", alignItems: "center" }}
+                          >
+                            <SchoolIcon sx={{ mr: 1 }} />
+                            Class XII (Commerce) Results
+                          </Typography>
+
+                          <TableContainer
+                            component={Paper}
+                            variant="outlined"
+                            sx={{ mt: 2 }}
+                          >
+                            <Table aria-label="class 12 commerce results table">
+                              <TableHead>
+                                <TableRow
+                                  sx={{ backgroundColor: "primary.main" }}
+                                >
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                  >
+                                    Position
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                  >
+                                    Name
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                    align="right"
+                                  >
+                                    Marks
+                                  </TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {result.data.map((student, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          backgroundColor: getMedalColor(
+                                            student.position
+                                          ),
+                                          color: "white",
+                                          borderRadius: "4px",
+                                          px: 1,
+                                          py: 0.5,
+                                          width: "fit-content",
+                                        }}
+                                      >
+                                        <AwardIcon
+                                          sx={{ mr: 0.5, fontSize: "1rem" }}
+                                        />
+                                        {student.position}
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell>{student.name}</TableCell>
+                                    <TableCell align="right">
+                                      {student.marks}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </Paper>
+                      </Grid>
+                    ))}
+
+                  {/* Class 12 Science Results */}
+                  {yearResults
+                    .filter((result) => result.class === "12Science")
+                    .map((result) => (
+                      <Grid item xs={12} md={6} key={result._id}>
+                        <Paper elevation={3} sx={{ p: 3 }}>
+                          <Typography
+                            variant="h5"
+                            gutterBottom
+                            sx={{ display: "flex", alignItems: "center" }}
+                          >
+                            <SchoolIcon sx={{ mr: 1 }} />
+                            Class XII (Science) Results
+                          </Typography>
+
+                          <TableContainer
+                            component={Paper}
+                            variant="outlined"
+                            sx={{ mt: 2 }}
+                          >
+                            <Table aria-label="class 12 science results table">
+                              <TableHead>
+                                <TableRow
+                                  sx={{ backgroundColor: "primary.main" }}
+                                >
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                  >
+                                    Position
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                  >
+                                    Name
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{ color: "white", fontWeight: "bold" }}
+                                    align="right"
+                                  >
+                                    Marks
+                                  </TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {result.data.map((student, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          backgroundColor: getMedalColor(
+                                            student.position
+                                          ),
+                                          color: "white",
+                                          borderRadius: "4px",
+                                          px: 1,
+                                          py: 0.5,
+                                          width: "fit-content",
+                                        }}
+                                      >
+                                        <AwardIcon
+                                          sx={{ mr: 0.5, fontSize: "1rem" }}
+                                        />
+                                        {student.position}
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell>{student.name}</TableCell>
+                                    <TableCell align="right">
+                                      {student.marks}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </Paper>
+                      </Grid>
+                    ))}
+
+                  {/* Summary Cards - Only displayed if we have summary data */}
+                  {yearResults.some((result) => result.summary) && (
+                    <Grid item xs={12}>
+                      <Typography variant="h5" gutterBottom sx={{ mt: 3 }}>
+                        Result Summary
                       </Typography>
+                      <Grid container spacing={3}>
+                        {yearResults
+                          .filter((result) => result.summary)
+                          .map((result) => (
+                            <Grid
+                              item
+                              xs={12}
+                              sm={6}
+                              md={3}
+                              key={`summary-${result._id}`}
+                            >
+                              <Card>
+                                <CardContent>
+                                  <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                    color="primary"
+                                  >
+                                    Class{" "}
+                                    {result.class === "10"
+                                      ? "Tenth"
+                                      : result.class === "12Arts"
+                                        ? "XII Arts"
+                                        : result.class === "12Commerce"
+                                          ? "XII Commerce"
+                                          : "XII Science"}
+                                  </Typography>
+                                  <Divider sx={{ mb: 2 }} />
+
+                                  <Grid container spacing={2}>
+                                    <Grid item xs={6}>
+                                      <Typography variant="body2">
+                                        Total Students
+                                      </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                      <Typography
+                                        variant="body1"
+                                        fontWeight="bold"
+                                      >
+                                        {result.summary.totalStudents}
+                                      </Typography>
+                                    </Grid>
+
+                                    <Grid item xs={6}>
+                                      <Typography variant="body2">
+                                        Passed
+                                      </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                      <Typography
+                                        variant="body1"
+                                        fontWeight="bold"
+                                      >
+                                        {result.summary.passed}
+                                      </Typography>
+                                    </Grid>
+
+                                    <Grid item xs={6}>
+                                      <Typography variant="body2">
+                                        Result
+                                      </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                      <Typography
+                                        variant="body1"
+                                        fontWeight="bold"
+                                        color="success.main"
+                                      >
+                                        {result.summary.result}
+                                      </Typography>
+                                    </Grid>
+                                  </Grid>
+
+                                  <Divider sx={{ my: 2 }} />
+
+                                  <Typography variant="subtitle2" gutterBottom>
+                                    Top Performers
+                                  </Typography>
+
+                                  <Box sx={{ mt: 1 }}>
+                                    {result.summary.firstPosition && (
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          mb: 1,
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            backgroundColor: "#FFD700",
+                                            color: "white",
+                                            borderRadius: "50%",
+                                            width: 24,
+                                            height: 24,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            mr: 1,
+                                          }}
+                                        >
+                                          1
+                                        </Box>
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight="bold"
+                                        >
+                                          {result.summary.firstPosition.name} -{" "}
+                                          {result.summary.firstPosition.marks} (
+                                          {
+                                            result.summary.firstPosition
+                                              .percentage
+                                          }
+                                          )
+                                        </Typography>
+                                      </Box>
+                                    )}
+
+                                    {result.summary.secondPosition && (
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            backgroundColor: "#C0C0C0",
+                                            color: "white",
+                                            borderRadius: "50%",
+                                            width: 24,
+                                            height: 24,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            mr: 1,
+                                          }}
+                                        >
+                                          2
+                                        </Box>
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight="bold"
+                                        >
+                                          {result.summary.secondPosition.name} -{" "}
+                                          {result.summary.secondPosition.marks}{" "}
+                                          (
+                                          {
+                                            result.summary.secondPosition
+                                              .percentage
+                                          }
+                                          )
+                                        </Typography>
+                                      </Box>
+                                    )}
+                                  </Box>
+                                </CardContent>
+                              </Card>
+                            </Grid>
+                          ))}
+                      </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class10.totalStudents}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Passed</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class10.passed}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Result</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography
-                        variant="body1"
-                        fontWeight="bold"
-                        color="success.main"
-                      >
-                        {results2021.summary.class10.result}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  <Typography variant="subtitle2" gutterBottom>
-                    Top Performers
-                  </Typography>
-
-                  <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#FFD700",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        1
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class10.firstPosition.name} -{" "}
-                        {results2021.summary.class10.firstPosition.marks} (
-                        {results2021.summary.class10.firstPosition.percentage})
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#C0C0C0",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        2
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class10.secondPosition.name} -{" "}
-                        {results2021.summary.class10.secondPosition.marks} (
-                        {results2021.summary.class10.secondPosition.percentage})
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Class 12 Science Results */}
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom color="primary">
-                    Class XII Science
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">
-                        Total Students Appeared
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class12Science.totalStudents}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Passed</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class12Science.passed}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Result</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography
-                        variant="body1"
-                        fontWeight="bold"
-                        color="success.main"
-                      >
-                        {results2021.summary.class12Science.result}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  <Typography variant="subtitle2" gutterBottom>
-                    Top Performers
-                  </Typography>
-
-                  <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#FFD700",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        1
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class12Science.firstPosition.name}{" "}
-                        -{" "}
-                        {results2021.summary.class12Science.firstPosition.marks}{" "}
-                        (
-                        {
-                          results2021.summary.class12Science.firstPosition
-                            .percentage
-                        }
-                        )
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#C0C0C0",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        2
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class12Science.secondPosition.name}{" "}
-                        -{" "}
-                        {
-                          results2021.summary.class12Science.secondPosition
-                            .marks
-                        }{" "}
-                        (
-                        {
-                          results2021.summary.class12Science.secondPosition
-                            .percentage
-                        }
-                        )
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Class 12 Arts Results */}
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom color="primary">
-                    Class XII Arts
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">
-                        Total Students Appeared
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class12Arts.totalStudents}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Passed</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class12Arts.passed}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Result</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography
-                        variant="body1"
-                        fontWeight="bold"
-                        color="success.main"
-                      >
-                        {results2021.summary.class12Arts.result}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  <Typography variant="subtitle2" gutterBottom>
-                    Top Performers
-                  </Typography>
-
-                  <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#FFD700",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        1
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class12Arts.firstPosition.name} -{" "}
-                        {results2021.summary.class12Arts.firstPosition.marks} (
-                        {
-                          results2021.summary.class12Arts.firstPosition
-                            .percentage
-                        }
-                        )
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#C0C0C0",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        2
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class12Arts.secondPosition.name} -{" "}
-                        {results2021.summary.class12Arts.secondPosition.marks} (
-                        {
-                          results2021.summary.class12Arts.secondPosition
-                            .percentage
-                        }
-                        )
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Class 12 Commerce Results */}
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom color="primary">
-                    Class XII Commerce
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="body2">
-                        Total Students Appeared
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class12Commerce.totalStudents}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Passed</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body1" fontWeight="bold">
-                        {results2021.summary.class12Commerce.passed}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                      <Typography variant="body2">Result</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography
-                        variant="body1"
-                        fontWeight="bold"
-                        color="success.main"
-                      >
-                        {results2021.summary.class12Commerce.result}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  <Typography variant="subtitle2" gutterBottom>
-                    Top Performers
-                  </Typography>
-
-                  <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#FFD700",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        1
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {results2021.summary.class12Commerce.firstPosition.name}{" "}
-                        -{" "}
-                        {
-                          results2021.summary.class12Commerce.firstPosition
-                            .marks
-                        }{" "}
-                        (
-                        {
-                          results2021.summary.class12Commerce.firstPosition
-                            .percentage
-                        }
-                        )
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Box
-                        sx={{
-                          backgroundColor: "#C0C0C0",
-                          color: "white",
-                          borderRadius: "50%",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mr: 1,
-                        }}
-                      >
-                        2
-                      </Box>
-                      <Typography variant="body2" fontWeight="bold">
-                        {
-                          results2021.summary.class12Commerce.secondPosition
-                            .name
-                        }{" "}
-                        -{" "}
-                        {
-                          results2021.summary.class12Commerce.secondPosition
-                            .marks
-                        }{" "}
-                        (
-                        {
-                          results2021.summary.class12Commerce.secondPosition
-                            .percentage
-                        }
-                        )
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
+                  )}
+                </Grid>
+              </Box>
+            );
+          })}
+        </>
       )}
     </Box>
   );

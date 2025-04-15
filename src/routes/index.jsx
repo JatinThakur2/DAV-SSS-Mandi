@@ -1,3 +1,4 @@
+// src/routes/index.jsx
 import React, { lazy } from "react";
 // Lazy load pages to improve initial load performance
 const HomePage = lazy(() => import("../pages/HomePage"));
@@ -7,6 +8,16 @@ const StaffPage = lazy(() => import("../pages/StaffPage"));
 const StudentZonePage = lazy(() => import("../pages/StudentZonePage"));
 const GalleryPage = lazy(() => import("../pages/GalleryPage"));
 const ContactPage = lazy(() => import("../pages/ContactPage"));
+
+// Admin Pages
+const LoginPage = lazy(() => import("../pages/admin/LoginPage"));
+const DashboardPage = lazy(() => import("../pages/admin/DashboardPage"));
+const AdminNewsPage = lazy(() => import("../pages/admin/NewsPage"));
+const AdminResultsPage = lazy(() => import("../pages/admin/ResultsPage"));
+const AdminScholarshipsPage = lazy(
+  () => import("../pages/admin/ScholarshipsPage")
+);
+const AdminGalleryPage = lazy(() => import("../pages/admin/GalleryPage"));
 
 // Nested route components
 const AboutDAV = lazy(() => import("../components/about/AboutDAV"));
@@ -22,6 +33,11 @@ const AdmissionRules = lazy(
 const FeeStructure = lazy(() => import("../components/admission/FeeStructure"));
 const Scholarship = lazy(() => import("../components/student/Scholarship"));
 const Results = lazy(() => import("../components/student/Results"));
+
+// Admin Layout and ProtectedRoute
+const AdminLayout = lazy(() => import("../components/admin/AdminLayout"));
+const ProtectedRoute = lazy(() => import("../components/admin/ProtectedRoute"));
+
 // 404 Not Found Page Component
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
@@ -113,6 +129,48 @@ export const routes = [
   {
     path: "/contact",
     element: <ContactPage />,
+  },
+
+  // Admin Routes
+  {
+    path: "/admin/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/admin",
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "",
+        element: <AdminLayout />,
+        children: [
+          {
+            path: "",
+            element: <DashboardPage />,
+          },
+          {
+            path: "dashboard",
+            element: <DashboardPage />,
+          },
+          {
+            path: "news",
+            element: <AdminNewsPage />,
+          },
+          {
+            path: "results",
+            element: <AdminResultsPage />,
+          },
+          {
+            path: "scholarships",
+            element: <AdminScholarshipsPage />,
+          },
+          {
+            path: "gallery",
+            element: <AdminGalleryPage />,
+          },
+        ],
+      },
+    ],
   },
 
   // 404 Route
