@@ -2,10 +2,10 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAdminAuth } from "../contexts/AdminAuthContext";
 
 function ProtectedRoute() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAdminAuth();
 
   if (loading) {
     return (

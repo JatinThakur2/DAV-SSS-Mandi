@@ -36,7 +36,7 @@ const Results = lazy(() => import("../components/student/Results"));
 
 // Admin Layout and ProtectedRoute
 const AdminLayout = lazy(() => import("../components/admin/AdminLayout"));
-const ProtectedRoute = lazy(() => import("../components/admin/ProtectedRoute"));
+const ProtectedRoute = lazy(() => import("../admin/ProtectedRoute"));
 
 // 404 Not Found Page Component
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));

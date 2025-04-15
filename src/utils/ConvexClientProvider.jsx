@@ -1,4 +1,3 @@
-// src/convex/ConvexClientProvider.jsx
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 // Function to get the Convex URL from various possible sources

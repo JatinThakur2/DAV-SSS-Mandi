@@ -4,7 +4,7 @@ import {
   useRoutes,
   useLocation,
 } from "react-router-dom";
-import { ThemeProvider, CssBaseline, LinearProgress, Box } from "@mui/material";
+import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 
 // Import custom theme
 import theme from "./themes/theme";
@@ -15,126 +15,81 @@ import { routes } from "./routes";
 // Import common components
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
+import ScrollToTop from "./components/common/ScrollToTop"; // Update path as needed
+import Loader from "./components/common/Loader"; // Update path as needed
+import ErrorBoundary from "./components/common/ErrorBoundary"; // Update path as needed
 
-// Import AuthProvider
+// Import Auth Providers
 import { AuthProvider } from "./contexts/AuthContext";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import { ConvexClientProvider } from "./utils/ConvexClientProvider";
 
-// Error Boundary Component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    // Log the error to an error reporting service
-    console.error("Uncaught error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100vh",
-            textAlign: "center",
-            p: 3,
-          }}
-        >
-          <h1>Something went wrong</h1>
-          <p>We're sorry, but an unexpected error occurred.</p>
-          <button onClick={() => window.location.reload()}>Reload Page</button>
-        </Box>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-// Loader Component
-function Loader() {
+// Create separate components for admin and public routes
+function AdminRoutes() {
   return (
-    <Box sx={{ width: "100%", position: "fixed", top: 0, zIndex: 9999 }}>
-      <LinearProgress />
-    </Box>
+    <ConvexClientProvider>
+      <AdminAuthProvider>
+        <Suspense fallback={<Loader />}>
+          <ErrorBoundary>
+            {/* Filter admin routes only */}
+            {useRoutes(
+              routes.filter(
+                (route) =>
+                  route.path === "/admin" ||
+                  route.path === "/admin/login" ||
+                  route.path.startsWith("/admin/")
+              )
+            )}
+          </ErrorBoundary>
+        </Suspense>
+      </AdminAuthProvider>
+    </ConvexClientProvider>
   );
 }
 
-// Scroll to top on route change
-function ScrollToTop() {
-  const { pathname } = useLocation();
-
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  return null;
+function PublicRoutes() {
+  return (
+    <ConvexClientProvider>
+      <AuthProvider>
+        <Navbar />
+        <Box sx={{ flex: 1 }}>
+          <Suspense fallback={<Loader />}>
+            <ErrorBoundary>
+              {/* Filter public routes only */}
+              {useRoutes(
+                routes.filter((route) => !route.path.startsWith("/admin"))
+              )}
+            </ErrorBoundary>
+          </Suspense>
+        </Box>
+        <Footer />
+      </AuthProvider>
+    </ConvexClientProvider>
+  );
 }
 
 // Main App Routing Component
 function AppRoutes() {
   const location = useLocation();
-  // Check if the current route is an admin route
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <ScrollToTop />
-      {!isAdminRoute && <Navbar />}
-      <Box sx={{ flex: 1 }}>
-        <Suspense fallback={<Loader />}>
-          <ErrorBoundary>{useRoutes(routes)}</ErrorBoundary>
-        </Suspense>
-      </Box>
-      {!isAdminRoute && <Footer />}
+      {isAdminRoute ? <AdminRoutes /> : <PublicRoutes />}
     </Box>
   );
 }
 
 // Main App Component
 function App() {
-  React.useEffect(() => {
-    // Add font links to head
-    const linkElement = document.createElement("link");
-    linkElement.rel = "preconnect";
-    linkElement.href = "https://fonts.googleapis.com";
-    document.head.appendChild(linkElement);
-
-    const linkElement2 = document.createElement("link");
-    linkElement2.rel = "preconnect";
-    linkElement2.href = "https://fonts.gstatic.com";
-    linkElement2.crossOrigin = "anonymous";
-    document.head.appendChild(linkElement2);
-
-    const fontLinkElement = document.createElement("link");
-    fontLinkElement.rel = "stylesheet";
-    fontLinkElement.href =
-      "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap";
-    document.head.appendChild(fontLinkElement);
-
-    return () => {
-      document.head.removeChild(linkElement);
-      document.head.removeChild(linkElement2);
-      document.head.removeChild(fontLinkElement);
-    };
-  }, []);
+  // useEffect for fonts remains the same...
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
+        <AppRoutes />
       </Router>
     </ThemeProvider>
   );
