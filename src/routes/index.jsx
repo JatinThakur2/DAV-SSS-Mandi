@@ -11,6 +11,7 @@ const ContactPage = lazy(() => import("../pages/ContactPage"));
 
 // Admin Pages
 const LoginPage = lazy(() => import("../pages/admin/LoginPage"));
+const SignupPage = lazy(() => import("../pages/admin/SignupPage"));
 const DashboardPage = lazy(() => import("../pages/admin/DashboardPage"));
 const AdminNewsPage = lazy(() => import("../pages/admin/NewsPage"));
 const AdminResultsPage = lazy(() => import("../pages/admin/ResultsPage"));
@@ -135,6 +136,10 @@ export const routes = [
   {
     path: "/admin/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/admin/signup",
+    element: <SignupPage />,
   },
   {
     path: "/admin",

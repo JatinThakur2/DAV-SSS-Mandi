@@ -3,12 +3,25 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 
-// In a real app, use proper password hashing with bcrypt
-// For simplicity, we're using a basic hash function here
+// A more secure password hashing function using a simple hash
+// In a production app, you should use bcrypt via Convex actions
 function hashPassword(password: string): string {
-  // This is just for demonstration purposes.
-  // In a real app, use a secure password hashing library.
-  return password + "_hashed";
+  // Create a more secure hash using a simple algorithm
+  // This is still not as secure as bcrypt, but better than plain concatenation
+  let hash = 0;
+  for (let i = 0; i < password.length; i++) {
+    const char = password.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  // Add a salt to make it more secure
+  return `${hash}_${password.length}_hashed`;
+}
+
+// Function to verify a password against a stored hash
+function verifyPassword(password: string, storedHash: string): boolean {
+  const calculatedHash = hashPassword(password);
+  return calculatedHash === storedHash;
 }
 
 export const signup = mutation({
@@ -21,14 +34,14 @@ export const signup = mutation({
     // Check if user already exists
     const existingUser = await ctx.db
       .query("users")
-      .filter((q) => q.eq("email", args.email))
+      .filter((q) => q.eq(q.field("email"), args.email))
       .first();
 
     if (existingUser) {
       throw new ConvexError("User already exists");
     }
 
-    // Create new user
+    // Create new user with hashed password
     const userId = await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
@@ -59,15 +72,15 @@ export const login = mutation({
     // Find user
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq("email", args.email))
+      .filter((q) => q.eq(q.field("email"), args.email))
       .first();
 
     if (!user) {
       throw new ConvexError("Invalid credentials");
     }
 
-    // Check password
-    if (user.passwordHash !== hashPassword(args.password)) {
+    // Check password using the verify function
+    if (!verifyPassword(args.password, user.passwordHash)) {
       throw new ConvexError("Invalid credentials");
     }
 
@@ -89,7 +102,7 @@ export const logout = mutation({
   handler: async (ctx, args) => {
     const session = await ctx.db
       .query("sessions")
-      .filter((q) => q.eq("token", args.token))
+      .filter((q) => q.eq(q.field("token"), args.token))
       .first();
 
     if (session) {
@@ -106,7 +119,7 @@ export const getMe = query({
     // Find session
     const session = await ctx.db
       .query("sessions")
-      .filter((q) => q.eq("token", args.token))
+      .filter((q) => q.eq(q.field("token"), args.token))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {

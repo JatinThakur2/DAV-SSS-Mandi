@@ -32,7 +32,7 @@ import {
   Logout as LogoutIcon,
   Home as HomeIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAdminAuth } from "../../contexts/AdminAuthContext";
 import OmLogo from "../common/OmLogo";
 
 const drawerWidth = 240;
@@ -40,7 +40,7 @@ const drawerWidth = 240;
 function AdminLayout() {
   const [open, setOpen] = useState(true);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  const { user, logout } = useAuth();
+  const { user, logout } = useAdminAuth(); // Changed from useAuth to useAdminAuth
   const navigate = useNavigate();
   const location = useLocation();
 

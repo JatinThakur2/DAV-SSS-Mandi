@@ -1,5 +1,6 @@
 // src/contexts/AuthContext.jsx
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
+import { useConvexAvailable } from "../utils/ConvexClientProvider";
 
 const AuthContext = createContext();
 
@@ -8,14 +9,20 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  // For non-admin routes, you might still want to have some basic state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // Basic state for public pages - kept simple
+  const isAuthenticated = false;
+  const loading = false;
+  const user = null;
 
-  // Basic stub methods (you might not need these for public pages)
+  // Check if Convex is available
+  const isConvexAvailable = useConvexAvailable();
+
+  // Basic stub methods (for public pages we don't need Convex integration)
   const value = {
     isAuthenticated,
     loading,
+    user,
+    isConvexAvailable,
     // Add any non-Convex auth methods here if needed
   };
 

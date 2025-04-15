@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useNavigate } from "react-router-dom";
+import { useConvexAvailable } from "../utils/ConvexClientProvider";
 
 const AdminAuthContext = createContext();
 
@@ -16,18 +17,27 @@ export function AdminAuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
-  const login = useMutation(api.auth.login);
-  const logout = useMutation(api.auth.logout);
-  const signup = useMutation(api.auth.signup);
+  const isConvexAvailable = useConvexAvailable();
+
+  // Always define hooks at the top level, with no conditions
+  const loginMutation = useMutation(api.auth.login);
+  const logoutMutation = useMutation(api.auth.logout);
+  const signupMutation = useMutation(api.auth.signup);
 
   // Get the token from localStorage
   const token = localStorage.getItem("authToken");
 
-  // Get user data if token exists
-  const userData = useQuery(api.auth.getMe, token ? { token } : null);
+  // Use the token for the query only if we have a token
+  const userData = useQuery(api.auth.getMe, token ? { token } : "skip");
 
   useEffect(() => {
-    if (userData) {
+    if (!isConvexAvailable) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    if (userData && userData !== "skip") {
       setUser(userData);
       setLoading(false);
     } else if (userData === null && token) {
@@ -39,13 +49,20 @@ export function AdminAuthProvider({ children }) {
       setUser(null);
       setLoading(false);
     }
-  }, [userData, token]);
+  }, [userData, token, isConvexAvailable]);
 
   // Login function
   const handleLogin = async (email, password) => {
+    if (!isConvexAvailable) {
+      setError(
+        "Backend service is currently unavailable. Please try again later."
+      );
+      throw new Error("Backend service is currently unavailable");
+    }
+
     try {
       setError(null);
-      const result = await login({ email, password });
+      const result = await loginMutation({ email, password });
       localStorage.setItem("authToken", result.token);
       setUser({
         userId: result.userId,
@@ -62,9 +79,16 @@ export function AdminAuthProvider({ children }) {
 
   // Signup function
   const handleSignup = async (name, email, password) => {
+    if (!isConvexAvailable) {
+      setError(
+        "Backend service is currently unavailable. Please try again later."
+      );
+      throw new Error("Backend service is currently unavailable");
+    }
+
     try {
       setError(null);
-      const result = await signup({ name, email, password });
+      const result = await signupMutation({ name, email, password });
       localStorage.setItem("authToken", result.token);
       setUser({
         userId: result.userId,
@@ -81,8 +105,8 @@ export function AdminAuthProvider({ children }) {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      if (token) {
-        await logout({ token });
+      if (token && isConvexAvailable) {
+        await logoutMutation({ token });
       }
       localStorage.removeItem("authToken");
       setUser(null);
@@ -100,6 +124,7 @@ export function AdminAuthProvider({ children }) {
     error,
     loading,
     isAuthenticated: !!user,
+    isConvexAvailable,
   };
 
   return (

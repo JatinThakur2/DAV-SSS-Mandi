@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Container,
   Typography,
@@ -34,19 +34,30 @@ function SchoolGallery() {
   // Loading state
   const isLoading = galleryEvents === undefined;
 
-  // Get years for tabs
-  const years = [
-    ...new Set(
-      galleryEvents
-        .map((event) => {
-          const dateMatch = event.date.match(/\d{4}/);
-          return dateMatch ? dateMatch[0] : null;
-        })
-        .filter(Boolean)
-    ),
-  ]
-    .sort()
-    .reverse();
+  // Get years for tabs - safely handle undefined or empty array
+  const years = useMemo(() => {
+    if (!Array.isArray(galleryEvents)) return [];
+    return [
+      ...new Set(
+        galleryEvents
+          .map((event) => {
+            if (!event || !event.date) return null;
+            const dateMatch = event.date.match(/\d{4}/);
+            return dateMatch ? dateMatch[0] : null;
+          })
+          .filter(Boolean)
+      ),
+    ]
+      .sort()
+      .reverse();
+  }, [galleryEvents]);
+
+  // Set the default tab value based on available years
+  React.useEffect(() => {
+    if (years.length > 0 && currentTab >= years.length) {
+      setCurrentTab(0);
+    }
+  }, [years, currentTab]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -60,10 +71,32 @@ function SchoolGallery() {
     setOpenImage(null);
   };
 
-  // Helper to get events by year
+  // Helper to get events by year - safely handles null or undefined
   const getEventsByYear = (year) => {
-    return galleryEvents.filter((event) => event.date.includes(year));
+    if (!Array.isArray(galleryEvents)) return [];
+    return galleryEvents.filter(
+      (event) => event && event.date && event.date.includes(year)
+    );
   };
+
+  // Pre-fetch all event images outside of the render loop
+  const eventImagesMap = useMemo(() => {
+    const imagesMap = new Map();
+
+    if (Array.isArray(galleryEvents)) {
+      galleryEvents.forEach((event) => {
+        if (event && event._id) {
+          const eventImages =
+            useQuery(api.gallery.getGalleryImagesByEvent, {
+              eventId: event._id,
+            }) || [];
+          imagesMap.set(event._id, eventImages);
+        }
+      });
+    }
+
+    return imagesMap;
+  }, [galleryEvents]);
 
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>
@@ -94,28 +127,30 @@ function SchoolGallery() {
             ))}
           </Grid>
         </>
-      ) : galleryEvents.length === 0 ? (
+      ) : !Array.isArray(galleryEvents) || galleryEvents.length === 0 ? (
         // No events case
         <Alert severity="info">
           No gallery events available at the moment.
         </Alert>
       ) : (
         <>
-          <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 4 }}>
-            <Tabs
-              value={currentTab < years.length ? currentTab : 0}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              indicatorColor="primary"
-              textColor="primary"
-              aria-label="gallery year tabs"
-            >
-              {years.map((year, index) => (
-                <Tab key={index} label={year} />
-              ))}
-            </Tabs>
-          </Box>
+          {years.length > 0 && (
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 4 }}>
+              <Tabs
+                value={currentTab < years.length ? currentTab : 0}
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                indicatorColor="primary"
+                textColor="primary"
+                aria-label="gallery year tabs"
+              >
+                {years.map((year, index) => (
+                  <Tab key={index} label={year} />
+                ))}
+              </Tabs>
+            </Box>
+          )}
 
           {years.map((year, yearIndex) => (
             <Box
@@ -140,11 +175,10 @@ function SchoolGallery() {
                   </Grid>
                 ) : (
                   getEventsByYear(year).map((event) => {
-                    // For each event, fetch its images
-                    const eventImages =
-                      useQuery(api.gallery.getGalleryImagesByEvent, {
-                        eventId: event._id,
-                      }) || [];
+                    if (!event || !event._id) return null;
+
+                    // Get pre-fetched images for this event
+                    const eventImages = eventImagesMap.get(event._id) || [];
 
                     return (
                       <Grid item xs={12} sm={6} md={4} key={event._id}>
@@ -166,19 +200,23 @@ function SchoolGallery() {
                             image={
                               event.thumbnail || "/api/placeholder/800/500"
                             }
-                            alt={event.title}
+                            alt={event.title || "Event"}
                             sx={{ cursor: "pointer" }}
                             onClick={() => {
-                              if (eventImages.length > 0) {
+                              if (
+                                Array.isArray(eventImages) &&
+                                eventImages.length > 0 &&
+                                eventImages[0]?.imageUrl
+                              ) {
                                 handleOpenImage(eventImages[0].imageUrl);
-                              } else {
+                              } else if (event.thumbnail) {
                                 handleOpenImage(event.thumbnail);
                               }
                             }}
                           />
                           <CardContent sx={{ flexGrow: 1 }}>
                             <Typography variant="h6" gutterBottom>
-                              {event.title}
+                              {event.title || "Untitled Event"}
                             </Typography>
                             <Typography
                               variant="body2"
@@ -190,11 +228,11 @@ function SchoolGallery() {
                               }}
                             >
                               <EventIcon fontSize="small" sx={{ mr: 0.5 }} />
-                              {event.date}
+                              {event.date || "No date available"}
                             </Typography>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="body2">
-                              {event.description}
+                              {event.description || "No description available"}
                             </Typography>
                           </CardContent>
                         </Card>

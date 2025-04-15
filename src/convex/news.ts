@@ -4,12 +4,17 @@ import { v } from "convex/values";
 export const getNews = query({
   args: { isNotice: v.optional(v.boolean()) },
   handler: async (ctx, args) => {
-    const filter =
-      args.isNotice !== undefined
-        ? (q: any) => q.eq("isNotice", args.isNotice)
-        : (q: any) => q;
+    let newsQuery = ctx.db.query("news");
 
-    return await ctx.db.query("news").filter(filter).order("desc").collect();
+    // Only apply the filter if isNotice is defined
+    if (args.isNotice !== undefined) {
+      newsQuery = newsQuery.filter((q) =>
+        q.eq(q.field("isNotice"), args.isNotice)
+      );
+    }
+
+    // Get the results
+    return await newsQuery.collect();
   },
 });
 

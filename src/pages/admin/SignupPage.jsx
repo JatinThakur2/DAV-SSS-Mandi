@@ -1,5 +1,5 @@
-// src/pages/admin/LoginPage.jsx
-import React, { useState, useEffect } from "react";
+// src/pages/admin/SignupPage.jsx
+import React, { useState } from "react";
 import {
   Container,
   Paper,
@@ -17,36 +17,74 @@ import {
 import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  Login as LoginIcon,
+  PersonAdd as PersonAddIcon,
 } from "@mui/icons-material";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
 import OmLogo from "../../components/common/OmLogo";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function SignupPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const { login, error, isConvexAvailable } = useAdminAuth();
+  const { signup, error, isConvexAvailable } = useAdminAuth();
+  const navigate = useNavigate();
 
-  // Check for signup success message in sessionStorage
-  useEffect(() => {
-    const signupSuccess = sessionStorage.getItem("signupSuccess");
-    if (signupSuccess) {
-      setSuccessMessage(signupSuccess);
-      // Remove the message after displaying it
-      sessionStorage.removeItem("signupSuccess");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const validateForm = () => {
+    // Check for empty fields
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setFormError("All fields are required");
+      return false;
     }
-  }, []);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setFormError("Please enter a valid email address");
+      return false;
+    }
+
+    // Check password length
+    if (formData.password.length < 6) {
+      setFormError("Password must be at least 6 characters long");
+      return false;
+    }
+
+    // Check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setFormError("Passwords do not match");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
-    setSuccessMessage(""); // Clear any existing success message when submitting
+    setSuccessMessage("");
 
     if (!isConvexAvailable) {
       setFormError(
@@ -55,17 +93,30 @@ function LoginPage() {
       return;
     }
 
-    if (!email || !password) {
-      setFormError("Please fill in all fields");
+    if (!validateForm()) {
       return;
     }
 
     try {
       setLoading(true);
-      await login(email, password);
+      await signup(formData.name, formData.email, formData.password);
+      setSuccessMessage(
+        "Account created successfully! Redirecting to login page..."
+      );
+
+      // Store success message in sessionStorage for the login page to display
+      sessionStorage.setItem(
+        "signupSuccess",
+        "Your account has been created successfully. You can now login."
+      );
+
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        navigate("/admin/login");
+      }, 1500);
     } catch (error) {
-      console.error("Login error:", error);
-      setFormError(error.message || "Login failed");
+      console.error("Signup error:", error);
+      setFormError(error.message || "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -75,8 +126,12 @@ function LoginPage() {
     setShowPassword(!showPassword);
   };
 
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <Box
         sx={{
           minHeight: "100vh",
@@ -84,6 +139,7 @@ function LoginPage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          py: 4,
         }}
       >
         <Paper
@@ -104,7 +160,7 @@ function LoginPage() {
               variant="h5"
               sx={{ fontWeight: 700, color: "secondary.main" }}
             >
-              Admin Login
+              Create Admin Account
             </Typography>
             <Typography variant="body2" color="text.secondary">
               DAV Senior Secondary School, Mandi
@@ -128,15 +184,21 @@ function LoginPage() {
             </Alert>
           )}
 
-          {successMessage && (
-            <Alert severity="success" sx={{ width: "100%", mb: 2 }}>
-              {successMessage}
+          {error && (
+            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+              {error}
             </Alert>
           )}
 
-          {(error || formError) && (
+          {formError && (
             <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
-              {formError || error}
+              {formError}
+            </Alert>
+          )}
+
+          {successMessage && (
+            <Alert severity="success" sx={{ width: "100%", mb: 2 }}>
+              {successMessage}
             </Alert>
           )}
 
@@ -149,16 +211,29 @@ function LoginPage() {
               margin="normal"
               required
               fullWidth
+              id="name"
+              label="Full Name"
+              name="name"
+              autoComplete="name"
+              autoFocus
+              value={formData.name}
+              onChange={handleChange}
+              disabled={!isConvexAvailable || loading}
+            />
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
               id="email"
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={{ mb: 2 }}
+              value={formData.email}
+              onChange={handleChange}
               disabled={!isConvexAvailable || loading}
             />
+
             <TextField
               margin="normal"
               required
@@ -167,8 +242,8 @@ function LoginPage() {
               label="Password"
               type={showPassword ? "text" : "password"}
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -187,9 +262,41 @@ function LoginPage() {
                   </InputAdornment>
                 ),
               }}
+              disabled={!isConvexAvailable || loading}
+            />
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="confirmPassword"
+              label="Confirm Password"
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={toggleShowConfirmPassword}
+                      edge="end"
+                      disabled={!isConvexAvailable || loading}
+                    >
+                      {showConfirmPassword ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               sx={{ mb: 3 }}
               disabled={!isConvexAvailable || loading}
             />
+
             <Button
               type="submit"
               fullWidth
@@ -212,20 +319,20 @@ function LoginPage() {
                       color: "primary.light",
                     }}
                   />
-                  Signing in...
+                  Creating Account...
                 </>
               ) : (
                 <>
-                  <LoginIcon sx={{ mr: 1 }} />
-                  Sign In
+                  <PersonAddIcon sx={{ mr: 1 }} />
+                  Create Account
                 </>
               )}
             </Button>
 
             <Grid container justifyContent="center" sx={{ mt: 3 }}>
               <Grid item>
-                <Link component={RouterLink} to="/admin/signup" variant="body2">
-                  Need an account? Sign up
+                <Link component={RouterLink} to="/admin/login" variant="body2">
+                  Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
@@ -236,4 +343,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SignupPage;

@@ -17,13 +17,13 @@ import {
   Collections as GalleryIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAdminAuth } from "../../contexts/AdminAuthContext"; // Changed from useAuth
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useAdminAuth(); // Changed from useAuth to useAdminAuth
 
   // Get counts for dashboard
   const news = useQuery(api.news.getNews) || [];
