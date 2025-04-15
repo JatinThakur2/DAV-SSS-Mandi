@@ -28,7 +28,6 @@ import {
   School as SchoolIcon,
   MonetizationOn as ScholarshipIcon,
   Collections as GalleryIcon,
-  Person as PersonIcon,
   Logout as LogoutIcon,
   Home as HomeIcon,
 } from "@mui/icons-material";

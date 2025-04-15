@@ -120,7 +120,7 @@ function Results() {
                             sx={{ display: "flex", alignItems: "center" }}
                           >
                             <SchoolIcon sx={{ mr: 1 }} />
-                            Class XII (Arts) Results
+                            Class X Results
                           </Typography>
 
                           <TableContainer

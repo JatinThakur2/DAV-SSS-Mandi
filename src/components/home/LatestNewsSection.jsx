@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Card,
@@ -9,16 +9,89 @@ import {
   Grid,
   Skeleton,
   Alert,
-  Button,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { format, parseISO } from "date-fns";
-import {
-  OpenInNew as OpenInNewIcon,
-  ArrowForward as ArrowForwardIcon,
-} from "@mui/icons-material";
+import { OpenInNew as OpenInNewIcon } from "@mui/icons-material";
+
+// CSS class-based marquee with fade effects
+const MarqueeContent = ({ children }) => {
+  const [isPaused, setIsPaused] = useState(false);
+
+  return (
+    <Box
+      className="marquee-container"
+      sx={{
+        height: "300px",
+        overflow: "hidden",
+        position: "relative",
+        mx: 2, // Add margin to the left and right
+      }}
+    >
+      {/* Top fade effect */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "40px",
+          background: "linear-gradient(to bottom, white 0%, transparent 100%)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      />
+
+      <Box
+        className={`marquee-content ${isPaused ? "paused" : ""}`}
+        sx={{
+          animation: "marquee 20s linear infinite",
+          paddingRight: 2,
+          paddingLeft: 2,
+          "&.paused": {
+            animationPlayState: "paused",
+          },
+        }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {children}
+        {/* Duplicate content for seamless looping */}
+        {children}
+      </Box>
+
+      {/* Bottom fade effect */}
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "40px",
+          background: "linear-gradient(to top, white 0%, transparent 100%)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Add the keyframes animation with global styles */}
+      <Box
+        component="style"
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes marquee {
+              0% { transform: translateY(0); }
+              100% { transform: translateY(-50%); }
+            }
+          `,
+        }}
+      />
+    </Box>
+  );
+};
 
 const LatestNewsSection = () => {
   // Fetch news and notices from Convex
@@ -31,10 +104,10 @@ const LatestNewsSection = () => {
   // Sort and get the latest items
   const latestNews = [...(news || [])]
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 2);
+    .slice(0, 6); // Get more items for better scrolling
   const latestNotices = [...(notices || [])]
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 2);
+    .slice(0, 6); // Get more items for better scrolling
 
   const formatDate = (dateString) => {
     try {
@@ -44,173 +117,155 @@ const LatestNewsSection = () => {
     }
   };
 
+  const NewsItem = ({ item }) => (
+    <Box
+      sx={{
+        mb: 3,
+        position: "relative",
+        pr: 5, // Make room for the icon button
+        pb: 1,
+        borderBottom: "1px solid rgba(0,0,0,0.12)",
+      }}
+    >
+      <Typography variant="h6" sx={{ pr: 4 }}>
+        {item.title}
+      </Typography>
+      <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+        {formatDate(item.date)}
+      </Typography>
+      <Typography variant="body2">
+        {item.description.length > 120
+          ? `${item.description.substring(0, 120)}...`
+          : item.description}
+      </Typography>
+
+      {/* Link button, only visible if link exists */}
+      {item.link && (
+        <Tooltip title="Open Link">
+          <IconButton
+            size="small"
+            color="primary"
+            component="a"
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 0,
+              "&:hover": {
+                backgroundColor: "primary.light",
+                color: "white",
+              },
+            }}
+          >
+            <OpenInNewIcon />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Box>
+  );
+
   return (
     <Box sx={{ my: 4 }}>
       <Grid container spacing={4}>
         {/* Latest News Card */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
+          <Card
+            sx={{ height: "400px", display: "flex", flexDirection: "column" }}
+          >
+            <CardContent sx={{ flexGrow: 0, pb: 1 }}>
               <Typography variant="h5" gutterBottom>
                 Latest News
               </Typography>
+            </CardContent>
 
+            <Divider />
+
+            <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
               {isLoading ? (
                 // Loading skeleton
-                Array.from(new Array(2)).map((_, index) => (
-                  <Box key={index} sx={{ mb: 2 }}>
-                    <Skeleton variant="text" width="60%" height={30} />
-                    <Skeleton variant="text" width="30%" height={20} />
-                    <Skeleton variant="text" height={50} />
-                    <Skeleton
-                      variant="rectangular"
-                      width={120}
-                      height={36}
-                      sx={{ mt: 1 }}
-                    />
-                  </Box>
-                ))
+                <Box sx={{ p: 2 }}>
+                  {Array.from(new Array(2)).map((_, index) => (
+                    <Box key={index} sx={{ mb: 2 }}>
+                      <Skeleton variant="text" width="60%" height={30} />
+                      <Skeleton variant="text" width="30%" height={20} />
+                      <Skeleton variant="text" height={50} />
+                      <Skeleton
+                        variant="rectangular"
+                        width={40}
+                        height={40}
+                        sx={{ mt: 1, position: "absolute", right: 16, top: 10 }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
               ) : latestNews.length === 0 ? (
                 // No news case
-                <Alert severity="info">No recent news available.</Alert>
+                <Box sx={{ p: 2 }}>
+                  <Alert severity="info">No recent news available.</Alert>
+                </Box>
               ) : (
-                // Display news
-                latestNews.map((newsItem) => (
-                  <Box key={newsItem._id} sx={{ mb: 3 }}>
-                    <Typography variant="h6">{newsItem.title}</Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      sx={{ mb: 1 }}
-                    >
-                      {formatDate(newsItem.date)}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
-                      {newsItem.description.length > 150
-                        ? `${newsItem.description.substring(0, 150)}...`
-                        : newsItem.description}
-                    </Typography>
-
-                    {/* Link button, only visible if link exists */}
-                    {newsItem.link && (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        endIcon={<OpenInNewIcon />}
-                        component="a"
-                        href={newsItem.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{ mt: 1 }}
-                      >
-                        Click Here
-                      </Button>
-                    )}
-
-                    <Divider sx={{ my: 2 }} />
+                // Display news with marquee effect
+                <MarqueeContent>
+                  <Box>
+                    {latestNews.map((newsItem) => (
+                      <NewsItem key={newsItem._id} item={newsItem} />
+                    ))}
                   </Box>
-                ))
+                </MarqueeContent>
               )}
-
-              <Link
-                component={RouterLink}
-                to="/news"
-                variant="body2"
-                color="inherit"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                }}
-              >
-                View All News
-                <ArrowForwardIcon sx={{ ml: 0.5, fontSize: 16 }} />
-              </Link>
-            </CardContent>
+            </Box>
           </Card>
         </Grid>
 
         {/* Notices Card */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
+          <Card
+            sx={{ height: "400px", display: "flex", flexDirection: "column" }}
+          >
+            <CardContent sx={{ flexGrow: 0, pb: 1 }}>
               <Typography variant="h5" gutterBottom>
                 Notices
               </Typography>
+            </CardContent>
 
+            <Divider />
+
+            <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
               {isLoading ? (
                 // Loading skeleton
-                Array.from(new Array(2)).map((_, index) => (
-                  <Box key={index} sx={{ mb: 2 }}>
-                    <Skeleton variant="text" width="60%" height={30} />
-                    <Skeleton variant="text" width="30%" height={20} />
-                    <Skeleton variant="text" height={50} />
-                    <Skeleton
-                      variant="rectangular"
-                      width={120}
-                      height={36}
-                      sx={{ mt: 1 }}
-                    />
-                  </Box>
-                ))
+                <Box sx={{ p: 2 }}>
+                  {Array.from(new Array(2)).map((_, index) => (
+                    <Box key={index} sx={{ mb: 2 }}>
+                      <Skeleton variant="text" width="60%" height={30} />
+                      <Skeleton variant="text" width="30%" height={20} />
+                      <Skeleton variant="text" height={50} />
+                      <Skeleton
+                        variant="rectangular"
+                        width={40}
+                        height={40}
+                        sx={{ mt: 1, position: "absolute", right: 16, top: 10 }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
               ) : latestNotices.length === 0 ? (
                 // No notices case
-                <Alert severity="info">No recent notices available.</Alert>
+                <Box sx={{ p: 2 }}>
+                  <Alert severity="info">No recent notices available.</Alert>
+                </Box>
               ) : (
-                // Display notices
-                latestNotices.map((notice) => (
-                  <Box key={notice._id} sx={{ mb: 3 }}>
-                    <Typography variant="h6">{notice.title}</Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      sx={{ mb: 1 }}
-                    >
-                      {formatDate(notice.date)}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
-                      {notice.description.length > 150
-                        ? `${notice.description.substring(0, 150)}...`
-                        : notice.description}
-                    </Typography>
-
-                    {/* Link button, only visible if link exists */}
-                    {notice.link && (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="error"
-                        endIcon={<OpenInNewIcon />}
-                        component="a"
-                        href={notice.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{ mt: 1 }}
-                      >
-                        Click Here
-                      </Button>
-                    )}
-
-                    <Divider sx={{ my: 2 }} />
+                // Display notices with marquee effect
+                <MarqueeContent>
+                  <Box>
+                    {latestNotices.map((notice) => (
+                      <NewsItem key={notice._id} item={notice} />
+                    ))}
                   </Box>
-                ))
+                </MarqueeContent>
               )}
-
-              <Link
-                component={RouterLink}
-                to="/notices"
-                variant="body2"
-                color="inherit"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                }}
-              >
-                View All Notices
-                <ArrowForwardIcon sx={{ ml: 0.5, fontSize: 16 }} />
-              </Link>
-            </CardContent>
+            </Box>
           </Card>
         </Grid>
       </Grid>
