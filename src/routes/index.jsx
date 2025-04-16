@@ -24,9 +24,11 @@ const AdminGalleryPage = lazy(() => import("../pages/admin/GalleryPage"));
 const AboutDAV = lazy(() => import("../components/about/AboutDAV"));
 const VisionMission = lazy(() => import("../components/about/VisionMission"));
 const Facilities = lazy(() => import("../components/about/Facilities"));
-const TeachingStaff = lazy(() => import("../components/staff/TeachingStaff"));
+const TeachingStaff = lazy(
+  () => import("../components/administration/TeachingStaff")
+);
 const NonTeachingStaff = lazy(
-  () => import("../components/staff/NonTeachingStaff")
+  () => import("../components/administration/NonTeachingStaff")
 );
 const AdmissionRules = lazy(
   () => import("../components/admission/AdmissionRules")

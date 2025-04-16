@@ -1,3 +1,4 @@
+// src/convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
@@ -126,4 +127,29 @@ export default defineSchema({
   })
     .index("by_token", ["token"])
     .index("by_user", ["userId"]),
+
+  // NEW: Teaching Staff table
+  teachingStaff: defineTable({
+    name: v.string(),
+    designation: v.string(),
+    qualification: v.string(),
+    experience: v.string(),
+    imageUrl: v.optional(v.string()),
+    order: v.optional(v.number()), // For custom ordering if needed
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_designation", ["designation"]),
+
+  // NEW: Non-Teaching Staff table
+  nonTeachingStaff: defineTable({
+    name: v.string(),
+    designation: v.string(),
+    qualification: v.string(),
+    experience: v.string(),
+    staffType: v.string(), // "ministerial" or "supporting"
+    imageUrl: v.optional(v.string()),
+    order: v.optional(v.number()), // For custom ordering if needed
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_staff_type", ["staffType"]),
 });

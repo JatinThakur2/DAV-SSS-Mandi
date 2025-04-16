@@ -20,6 +20,7 @@ import type * as houses from "../houses.js";
 import type * as news from "../news.js";
 import type * as results from "../results.js";
 import type * as scholarships from "../scholarships.js";
+import type * as staff from "../staff.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   news: typeof news;
   results: typeof results;
   scholarships: typeof scholarships;
+  staff: typeof staff;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
