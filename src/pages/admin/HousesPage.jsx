@@ -1,121 +1,25 @@
 // src/pages/admin/HousesPage.jsx
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  Grid,
-  Tabs,
-  Tab,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Image as ImageIcon,
-} from "@mui/icons-material";
-import { useQuery, useMutation } from "convex/react";
+import { Box, Typography, Tabs, Tab, Snackbar, Alert } from "@mui/material";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-// Similar to gallery image upload functionality
-function ImageUploader({ onImageUpload, currentImage = null }) {
-  const [uploading, setUploading] = useState(false);
-  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  const saveFileInfo = useMutation(api.files.saveFileInfo);
+// Import sections
+import HouseInfoSection from "../../components/admin/houses/HouseInfoSection";
+import PresidiumSection from "../../components/admin/houses/PresidiumSection";
+import HousesGridSection from "../../components/admin/houses/HousesGridSection";
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    try {
-      setUploading(true);
-      // Get upload URL
-      const uploadUrl = await generateUploadUrl();
-
-      // Upload file
-      const result = await fetch(uploadUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-
-      if (!result.ok) throw new Error("Upload failed");
-
-      // Get storage ID
-      const { storageId } = await result.json();
-
-      // Save file info
-      const fileInfo = await saveFileInfo({
-        storageId,
-        fileName: file.name,
-        fileType: file.type,
-      });
-
-      // Pass URL to parent
-      onImageUpload(fileInfo.url);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <Box sx={{ mb: 2 }}>
-      {currentImage && (
-        <Box sx={{ mb: 2 }}>
-          <img
-            src={currentImage}
-            alt="Current"
-            style={{
-              maxWidth: "100%",
-              maxHeight: "200px",
-              objectFit: "contain",
-            }}
-          />
-        </Box>
-      )}
-
-      <Button
-        variant="outlined"
-        component="label"
-        startIcon={uploading ? <CircularProgress size={20} /> : <ImageIcon />}
-        disabled={uploading}
-      >
-        {currentImage ? "Change Image" : "Upload Image"}
-        <input
-          type="file"
-          hidden
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </Button>
-    </Box>
-  );
-}
+// Import dialogs
+import HouseInfoDialog from "../../components/admin/houses/dialogs/HouseInfoDialog";
+import PresidiumDialog from "../../components/admin/houses/dialogs/PresidiumDialog";
+import HouseDialog from "../../components/admin/houses/dialogs/HouseDialog";
+import DeleteDialog from "../../components/admin/houses/dialogs/DeleteDialog";
 
 function HousesPage() {
+  // Tab state
   const [tabValue, setTabValue] = useState(0);
+
+  // Dialog states
   const [houseInfoDialog, setHouseInfoDialog] = useState(false);
   const [presidiumDialog, setPresidiumDialog] = useState(false);
   const [houseDialog, setHouseDialog] = useState(false);
@@ -124,21 +28,27 @@ function HousesPage() {
     type: "",
     id: null,
   });
+
+  // Form states
   const [dialogMode, setDialogMode] = useState("add");
   const [positionType, setPositionType] = useState("other");
   const [customPosition, setCustomPosition] = useState("");
+  const [currentItemId, setCurrentItemId] = useState(null);
 
   // Current edited items
   const [currentHouseInfo, setCurrentHouseInfo] = useState({
     title: "",
     description: "",
   });
+
   const [currentPresidium, setCurrentPresidium] = useState({
     position: "",
+    positionType: "other",
     name: "",
     year: new Date().getFullYear() + "-" + (new Date().getFullYear() + 1),
     imageUrl: "",
   });
+
   const [currentHouse, setCurrentHouse] = useState({
     name: "",
     captainBoy: "",
@@ -148,7 +58,6 @@ function HousesPage() {
     description: "",
     imageUrl: "",
   });
-  const [currentItemId, setCurrentItemId] = useState(null);
 
   // Notifications
   const [snackbar, setSnackbar] = useState({
@@ -160,7 +69,6 @@ function HousesPage() {
   // Fetch data from Convex
   const houseInfo = useQuery(api.houses.getHouseInfo);
   const presidium = useQuery(api.houses.getSchoolPresidium);
-  const houses = useQuery(api.houses.getHouses);
 
   // Mutations
   const updateHouseInfo = useMutation(api.houses.updateHouseInfo);
@@ -176,16 +84,19 @@ function HousesPage() {
     setTabValue(newValue);
   };
 
-  // Preset position options
-  const positionOptions = [
-    { value: "head-boy", label: "HEAD BOY" },
-    { value: "head-girl", label: "HEAD GIRL" },
-    { value: "captain-boy", label: "SCHOOL CAPTAIN (BOY)" },
-    { value: "captain-girl", label: "SCHOOL CAPTAIN (GIRL)" },
-    { value: "other", label: "Other" },
-  ];
+  // Get position name from position type
+  const getPositionName = (type) => {
+    const options = [
+      { value: "head-boy", label: "HEAD BOY" },
+      { value: "head-girl", label: "HEAD GIRL" },
+      { value: "captain-boy", label: "SCHOOL CAPTAIN (BOY)" },
+      { value: "captain-girl", label: "SCHOOL CAPTAIN (GIRL)" },
+    ];
+    const option = options.find((opt) => opt.value === type);
+    return option ? option.label : "";
+  };
 
-  // Determine position type from a position string
+  // Helper to determine position type from text
   const determinePositionType = (position) => {
     if (!position) return "other";
 
@@ -201,14 +112,9 @@ function HousesPage() {
     return "other";
   };
 
-  // Get position name from position type
-  const getPositionName = (type) => {
-    const option = positionOptions.find((opt) => opt.value === type);
-    return option ? option.label : "";
-  };
-
   // Dialog handlers
   const handleOpenHouseInfoDialog = () => {
+    // Set initial values from fetched data
     if (houseInfo) {
       setCurrentHouseInfo({
         title: houseInfo.title || "DAV School Houses",
@@ -223,7 +129,8 @@ function HousesPage() {
   const handleOpenPresidiumDialog = (mode, item = null) => {
     setDialogMode(mode);
     if (mode === "edit" && item) {
-      const type = determinePositionType(item.position);
+      // Set position type from database or determine if not present
+      const type = item.positionType || determinePositionType(item.position);
       setPositionType(type);
 
       if (type === "other") {
@@ -234,6 +141,7 @@ function HousesPage() {
 
       setCurrentPresidium({
         position: item.position,
+        positionType: type,
         name: item.name,
         year: item.year,
         imageUrl: item.imageUrl || "",
@@ -248,6 +156,7 @@ function HousesPage() {
 
       setCurrentPresidium({
         position: "",
+        positionType: "other",
         name: "",
         year:
           presidium && presidium.length > 0 ? presidium[0].year : defaultYear,
@@ -290,6 +199,61 @@ function HousesPage() {
     setDeleteDialog({ open: true, type, id });
   };
 
+  // Input handlers
+  const handleHouseInfoChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentHouseInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePresidiumChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentPresidium((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePositionTypeChange = (e) => {
+    const type = e.target.value;
+    setPositionType(type);
+    setCurrentPresidium((prev) => ({
+      ...prev,
+      positionType: type,
+    }));
+
+    if (type !== "other") {
+      // Set the position based on the selected type
+      const position = getPositionName(type);
+      setCurrentPresidium((prev) => ({
+        ...prev,
+        position: position,
+      }));
+    }
+  };
+
+  const handleCustomPositionChange = (e) => {
+    const value = e.target.value;
+    setCustomPosition(value);
+    setCurrentPresidium((prev) => ({
+      ...prev,
+      position: value,
+    }));
+  };
+
+  const handleHouseChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentHouse((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleHouseColorChange = (color) => {
+    setCurrentHouse((prev) => ({ ...prev, color }));
+  };
+
+  const handleImageUpload = (url, type) => {
+    if (type === "presidium") {
+      setCurrentPresidium((prev) => ({ ...prev, imageUrl: url }));
+    } else if (type === "house") {
+      setCurrentHouse((prev) => ({ ...prev, imageUrl: url }));
+    }
+  };
+
   // Save handlers
   const handleSaveHouseInfo = async () => {
     try {
@@ -324,6 +288,7 @@ function HousesPage() {
       const updatedPresidium = {
         ...currentPresidium,
         position: position,
+        positionType: positionType,
       };
 
       if (dialogMode === "add") {
@@ -417,51 +382,8 @@ function HousesPage() {
     }
   };
 
-  // Input handlers
-  const handleHouseInfoChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentHouseInfo((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handlePresidiumChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentPresidium((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handlePositionTypeChange = (e) => {
-    const type = e.target.value;
-    setPositionType(type);
-
-    if (type !== "other") {
-      // Set the position based on the selected type
-      const position = getPositionName(type);
-      setCurrentPresidium((prev) => ({
-        ...prev,
-        position: position,
-      }));
-    }
-  };
-
-  const handleCustomPositionChange = (e) => {
-    const value = e.target.value;
-    setCustomPosition(value);
-    setCurrentPresidium((prev) => ({
-      ...prev,
-      position: value,
-    }));
-  };
-
-  const handleHouseChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentHouse((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageUpload = (url, type) => {
-    if (type === "presidium") {
-      setCurrentPresidium((prev) => ({ ...prev, imageUrl: url }));
-    } else if (type === "house") {
-      setCurrentHouse((prev) => ({ ...prev, imageUrl: url }));
-    }
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -491,491 +413,77 @@ function HousesPage() {
 
       {/* House Information Tab */}
       {tabValue === 0 && (
-        <Paper sx={{ p: 3, borderRadius: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-            <Typography variant="h6">House System Information</Typography>
-            <Button
-              variant="contained"
-              startIcon={<EditIcon />}
-              onClick={handleOpenHouseInfoDialog}
-            >
-              Edit Information
-            </Button>
-          </Box>
-
-          <TableContainer>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell width="20%" sx={{ fontWeight: "bold" }}>
-                    Title
-                  </TableCell>
-                  <TableCell>
-                    {houseInfo?.title || "DAV School Houses"}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-                  <TableCell>
-                    {houseInfo?.description ||
-                      "DAV Senior Secondary school offers a high level of pastoral care through House system..."}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+        <HouseInfoSection onEditInfo={handleOpenHouseInfoDialog} />
       )}
 
       {/* School Presidium Tab */}
       {tabValue === 1 && (
-        <Paper sx={{ p: 3, borderRadius: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-            <Typography variant="h6">School Presidium</Typography>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => handleOpenPresidiumDialog("add")}
-            >
-              Add Presidium Member
-            </Button>
-          </Box>
-
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell width="30%">Position</TableCell>
-                  <TableCell width="30%">Name</TableCell>
-                  <TableCell width="20%">Year</TableCell>
-                  <TableCell width="20%" align="center">
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {presidium && presidium.length > 0 ? (
-                  presidium.map((member) => (
-                    <TableRow key={member._id} hover>
-                      <TableCell>{member.position}</TableCell>
-                      <TableCell>{member.name}</TableCell>
-                      <TableCell>{member.year}</TableCell>
-                      <TableCell align="center">
-                        <IconButton
-                          color="primary"
-                          size="small"
-                          onClick={() =>
-                            handleOpenPresidiumDialog("edit", member)
-                          }
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          size="small"
-                          onClick={() =>
-                            handleOpenDeleteDialog("presidium", member._id)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} align="center">
-                      <Typography variant="body1" sx={{ py: 3 }}>
-                        No presidium members found. Click the button above to
-                        add some.
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+        <PresidiumSection
+          onAddMember={() => handleOpenPresidiumDialog("add")}
+          onEditMember={handleOpenPresidiumDialog}
+          onDeleteMember={handleOpenDeleteDialog}
+        />
       )}
 
       {/* Houses Tab */}
       {tabValue === 2 && (
-        <Paper sx={{ p: 3, borderRadius: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-            <Typography variant="h6">Houses Management</Typography>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => handleOpenHouseDialog("add")}
-            >
-              Add House
-            </Button>
-          </Box>
-
-          <Grid container spacing={3}>
-            {houses && houses.length > 0 ? (
-              houses.map((house) => (
-                <Grid item xs={12} sm={6} md={3} key={house._id}>
-                  <Paper
-                    elevation={2}
-                    sx={{
-                      p: 2,
-                      height: "100%",
-                      borderTop: `4px solid ${house.color || "#607D8B"}`,
-                      transition: "transform 0.2s",
-                      "&:hover": {
-                        transform: "translateY(-5px)",
-                        boxShadow: 3,
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 2,
-                      }}
-                    >
-                      <Typography variant="h6">{house.name}</Typography>
-                      <Box>
-                        <IconButton
-                          color="primary"
-                          size="small"
-                          onClick={() => handleOpenHouseDialog("edit", house)}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          size="small"
-                          onClick={() =>
-                            handleOpenDeleteDialog("house", house._id)
-                          }
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-
-                    {house.imageUrl && (
-                      <Box sx={{ mb: 2, height: 120, overflow: "hidden" }}>
-                        <img
-                          src={house.imageUrl}
-                          alt={house.name}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </Box>
-                    )}
-
-                    <Box sx={{ color: "text.secondary", fontSize: "0.875rem" }}>
-                      <Box sx={{ mb: 1 }}>
-                        <strong>Captains:</strong> {house.captainBoy} &{" "}
-                        {house.captainGirl}
-                      </Box>
-                      <Box>
-                        <strong>Teacher:</strong> {house.houseTeacher}
-                      </Box>
-                    </Box>
-                  </Paper>
-                </Grid>
-              ))
-            ) : (
-              <Grid item xs={12}>
-                <Alert severity="info">
-                  No houses found. Click the button above to add some.
-                </Alert>
-              </Grid>
-            )}
-          </Grid>
-        </Paper>
+        <HousesGridSection
+          onAddHouse={() => handleOpenHouseDialog("add")}
+          onEditHouse={handleOpenHouseDialog}
+          onDeleteHouse={handleOpenDeleteDialog}
+        />
       )}
 
-      {/* House Info Dialog */}
-      <Dialog
+      {/* Dialogs */}
+      <HouseInfoDialog
         open={houseInfoDialog}
         onClose={() => setHouseInfoDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Edit House Information</DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              label="Title"
-              name="title"
-              value={currentHouseInfo.title}
-              onChange={handleHouseInfoChange}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              name="description"
-              value={currentHouseInfo.description}
-              onChange={handleHouseInfoChange}
-              multiline
-              rows={4}
-              margin="normal"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setHouseInfoDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSaveHouseInfo}
-            disabled={!currentHouseInfo.title || !currentHouseInfo.description}
-          >
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
+        currentHouseInfo={currentHouseInfo}
+        onHouseInfoChange={handleHouseInfoChange}
+        onSaveHouseInfo={handleSaveHouseInfo}
+      />
 
-      {/* Presidium Dialog */}
-      <Dialog
+      <PresidiumDialog
         open={presidiumDialog}
         onClose={() => setPresidiumDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {dialogMode === "add" ? "Add New" : "Edit"} Presidium Member
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            {/* Position Type Dropdown */}
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Position Type</InputLabel>
-              <Select
-                value={positionType}
-                onChange={handlePositionTypeChange}
-                label="Position Type"
-              >
-                {positionOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+        dialogMode={dialogMode}
+        currentPresidium={currentPresidium}
+        positionType={positionType}
+        customPosition={customPosition}
+        onPresidiumChange={handlePresidiumChange}
+        onPositionTypeChange={handlePositionTypeChange}
+        onCustomPositionChange={handleCustomPositionChange}
+        onImageUpload={handleImageUpload}
+        onSavePresidium={handleSavePresidium}
+      />
 
-            {/* Custom Position Field (shown only when 'Other' is selected) */}
-            {positionType === "other" && (
-              <TextField
-                fullWidth
-                label="Custom Position"
-                value={customPosition}
-                onChange={handleCustomPositionChange}
-                margin="normal"
-                placeholder="e.g., VICE CAPTAIN, SPORTS CAPTAIN"
-              />
-            )}
-
-            <TextField
-              margin="dense"
-              name="name"
-              label="Name"
-              type="text"
-              fullWidth
-              value={currentPresidium.name}
-              onChange={handlePresidiumChange}
-            />
-
-            <TextField
-              margin="dense"
-              name="year"
-              label="Academic Year"
-              type="text"
-              fullWidth
-              value={currentPresidium.year}
-              onChange={handlePresidiumChange}
-              placeholder="e.g., 2023-2024"
-            />
-
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>
-                Profile Image (Optional)
-              </Typography>
-              <ImageUploader
-                onImageUpload={(url) => handleImageUpload(url, "presidium")}
-                currentImage={currentPresidium.imageUrl}
-              />
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPresidiumDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSavePresidium}
-            disabled={
-              !currentPresidium.name ||
-              !currentPresidium.year ||
-              (positionType === "other" && !customPosition)
-            }
-          >
-            {dialogMode === "add" ? "Add" : "Save"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* House Dialog */}
-      <Dialog
+      <HouseDialog
         open={houseDialog}
         onClose={() => setHouseDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {dialogMode === "add" ? "Add New" : "Edit"} House
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="House Name"
-                  name="name"
-                  value={currentHouse.name}
-                  onChange={handleHouseChange}
-                  margin="normal"
-                  placeholder="e.g., GANDHI HOUSE"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                  <Typography variant="subtitle2" sx={{ mr: 2 }}>
-                    House Color:
-                  </Typography>
-                  <input
-                    type="color"
-                    value={currentHouse.color}
-                    onChange={(e) =>
-                      setCurrentHouse({
-                        ...currentHouse,
-                        color: e.target.value,
-                      })
-                    }
-                    style={{
-                      width: "50px",
-                      height: "40px",
-                      padding: 0,
-                      border: "none",
-                    }}
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Boy Captain"
-                  name="captainBoy"
-                  value={currentHouse.captainBoy}
-                  onChange={handleHouseChange}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Girl Captain"
-                  name="captainGirl"
-                  value={currentHouse.captainGirl}
-                  onChange={handleHouseChange}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="House Teacher"
-                  name="houseTeacher"
-                  value={currentHouse.houseTeacher}
-                  onChange={handleHouseChange}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Description (Optional)"
-                  name="description"
-                  value={currentHouse.description}
-                  onChange={handleHouseChange}
-                  multiline
-                  rows={3}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" gutterBottom>
-                  House Image (Optional)
-                </Typography>
-                <ImageUploader
-                  onImageUpload={(url) => handleImageUpload(url, "house")}
-                  currentImage={currentHouse.imageUrl}
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setHouseDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSaveHouse}
-            disabled={
-              !currentHouse.name ||
-              !currentHouse.captainBoy ||
-              !currentHouse.captainGirl ||
-              !currentHouse.houseTeacher
-            }
-          >
-            {dialogMode === "add" ? "Add" : "Save"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        dialogMode={dialogMode}
+        currentHouse={currentHouse}
+        onHouseChange={handleHouseChange}
+        onHouseColorChange={handleHouseColorChange}
+        onImageUpload={handleImageUpload}
+        onSaveHouse={handleSaveHouse}
+      />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
+      <DeleteDialog
         open={deleteDialog.open}
+        dialogType={deleteDialog.type}
         onClose={() => setDeleteDialog({ ...deleteDialog, open: false })}
-      >
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete this{" "}
-            {deleteDialog.type === "presidium" ? "presidium member" : "house"}?
-            This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteDialog({ ...deleteDialog, open: false })}
-          >
-            Cancel
-          </Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onDelete={handleDelete}
+      />
 
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           sx={{ width: "100%" }}
         >

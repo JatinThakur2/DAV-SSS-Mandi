@@ -36,38 +36,74 @@ export const updateHouseInfo = mutation({
 
 // SCHOOL PRESIDIUM FUNCTIONS
 export const getSchoolPresidium = query({
-  args: { year: v.optional(v.string()) },
+  args: {
+    year: v.optional(v.string()),
+    positionType: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
+    let query = ctx.db.query("schoolPresidium");
+
+    // Filter by year if provided
     if (args.year) {
-      return await ctx.db
-        .query("schoolPresidium")
-        .filter((q) => q.eq(q.field("year"), args.year))
-        .collect();
+      query = query.filter((q) => q.eq(q.field("year"), args.year));
     }
 
-    // Get the latest year's data by default
-    const allPresidium = await ctx.db.query("schoolPresidium").collect();
+    // Filter by positionType if provided
+    if (args.positionType) {
+      query = query.filter((q) =>
+        q.eq(q.field("positionType"), args.positionType)
+      );
+    }
+
+    const allPresidium = await query.collect();
 
     if (allPresidium.length === 0) return [];
 
-    // Find the most recent year
-    const years = [...new Set(allPresidium.map((item) => item.year))];
-    const latestYear = years.sort().reverse()[0];
+    // If no year specified, find the most recent year
+    if (!args.year) {
+      // Find the most recent year
+      const years = [...new Set(allPresidium.map((item) => item.year))];
+      const latestYear = years.sort().reverse()[0];
 
-    return allPresidium.filter((item) => item.year === latestYear);
+      return allPresidium.filter((item) => item.year === latestYear);
+    }
+
+    return allPresidium;
   },
 });
+
+// Helper function to determine position type
+function determinePositionType(position: string): string {
+  if (!position) return "other";
+
+  position = position.toUpperCase();
+
+  if (position === "HEAD BOY") return "head-boy";
+  if (position === "HEAD GIRL") return "head-girl";
+  if (position.includes("CAPTAIN") && position.includes("BOY"))
+    return "captain-boy";
+  if (position.includes("CAPTAIN") && position.includes("GIRL"))
+    return "captain-girl";
+
+  return "other";
+}
 
 export const addPresidiumMember = mutation({
   args: {
     position: v.string(),
+    positionType: v.optional(v.string()),
     name: v.string(),
     year: v.string(),
     imageUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // If positionType is not provided, determine it from the position
+    const positionType =
+      args.positionType || determinePositionType(args.position);
+
     return await ctx.db.insert("schoolPresidium", {
       ...args,
+      positionType,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -78,14 +114,21 @@ export const updatePresidiumMember = mutation({
   args: {
     id: v.id("schoolPresidium"),
     position: v.string(),
+    positionType: v.optional(v.string()),
     name: v.string(),
     year: v.string(),
     imageUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { id, ...data } = args;
+
+    // If positionType is not provided, determine it from the position
+    const positionType =
+      args.positionType || determinePositionType(args.position);
+
     return await ctx.db.patch(id, {
       ...data,
+      positionType,
       updatedAt: Date.now(),
     });
   },

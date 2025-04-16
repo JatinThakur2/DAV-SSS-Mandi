@@ -92,15 +92,18 @@ export default defineSchema({
     updatedAt: v.number(),
   }),
 
-  // School presidium (leadership)
+  // School presidium (leadership) - Updated with positionType field
   schoolPresidium: defineTable({
-    position: v.string(), // e.g., "HEAD BOY", "HEAD GIRL", etc.
+    position: v.string(), // The full position name (e.g., "HEAD BOY", "SCHOOL CAPTAIN (GIRL)")
+    positionType: v.optional(v.string()), // New field: "head-boy", "head-girl", "captain-boy", "captain-girl", "other"
     name: v.string(),
     year: v.string(), // e.g., "2023-2024"
     imageUrl: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_year", ["year"]),
+  })
+    .index("by_year", ["year"])
+    .index("by_position_type", ["positionType"]), // New index for querying by position type
 
   // Houses data
   houses: defineTable({

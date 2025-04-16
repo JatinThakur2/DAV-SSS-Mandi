@@ -28,7 +28,7 @@ const MarqueeContent = ({ children, height = "300px" }) => {
         height: height,
         overflow: "hidden",
         position: "relative",
-        mx: 2, // Add margin to the left and right
+        mx: 1, // Add margin to the left and right
       }}
     >
       {/* Top fade effect */}
@@ -100,11 +100,11 @@ const LatestNewsSection = ({ overlayMode = false }) => {
   const getMarqueeHeight = () => {
     if (overlayMode) {
       if (isIpadSize) {
-        return "180px"; // Shorter height for iPad in overlay mode
+        return "220px"; // Shorter height for iPad in overlay mode
       }
-      return "250px"; // Default for overlay mode
+      return "320px"; // Default for overlay mode
     }
-    return "300px"; // Default height
+    return "400px"; // Default height
   };
 
   // Fetch news and notices from Convex
@@ -321,8 +321,8 @@ const LatestNewsSection = ({ overlayMode = false }) => {
                 <Box sx={{ p: 2 }}>
                   {Array.from(new Array(2)).map((_, index) => (
                     <Box key={index} sx={{ mb: 2 }}>
-                      <Skeleton variant="text" width="60%" height={30} />
-                      <Skeleton variant="text" width="30%" height={20} />
+                      <Skeleton variant="text" width="60%" height={40} />
+                      <Skeleton variant="text" width="30%" height={40} />
                       <Skeleton variant="text" height={50} />
                       <Skeleton
                         variant="rectangular"
