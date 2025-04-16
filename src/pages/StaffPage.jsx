@@ -1,3 +1,4 @@
+// src/pages/StaffPage.jsx
 import React, { useEffect } from "react";
 import { Container, Paper, Tabs, Tab, Box } from "@mui/material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
@@ -32,12 +33,16 @@ function StaffPage() {
     }
   };
 
+  // Add logging to debug
+  console.log("StaffPage rendering, pathname:", pathname);
+  console.log("Current tab value:", getTabValue());
+
   return (
     <>
       <PageHeader
         title="School Administration"
         subtitle="Meet our dedicated teaching and non-teaching staff who nurture the future of our students."
-        bgImage="/api/placeholder/1920/400" // Replace with actual staff group photo
+        bgImage="/api/placeholder/1920/400"
       />
       <Container maxWidth="lg" sx={{ my: 4 }}>
         <Paper elevation={3} sx={{ p: 3 }}>
@@ -53,7 +58,15 @@ function StaffPage() {
               <Tab label="Non-Teaching Staff" />
             </Tabs>
           </Box>
-          <Outlet /> {/* This will render nested routes */}
+
+          {/* Debug info */}
+          <Box sx={{ display: "none" }}>
+            <p>Current path: {pathname}</p>
+            <p>Tab value: {getTabValue()}</p>
+          </Box>
+
+          {/* This is the outlet that renders the child routes */}
+          <Outlet />
         </Paper>
       </Container>
     </>

@@ -30,6 +30,8 @@ import {
 // Import admin components
 import AdminLayout from "./components/admin/AdminLayout";
 import ProtectedRoute from "./admin/ProtectedRoute";
+// import TeachingStaff from "./components/staff/TeachingStaff";
+// import NonTeachingStaff from "./components/staff/NonTeachingStaff";
 
 // Import pages with lazy loading
 const HomePage = React.lazy(() => import("./pages/HomePage"));
@@ -58,6 +60,7 @@ const VisionMission = React.lazy(
   () => import("./components/about/VisionMission")
 );
 const Facilities = React.lazy(() => import("./components/about/Facilities"));
+
 const TeachingStaff = React.lazy(
   () => import("./components/staff/TeachingStaff")
 );
@@ -134,8 +137,14 @@ function PublicRoutes() {
                 <Route path="facilities" element={<Facilities />} />
               </Route>
 
+              {/* Fixed Administration Routes */}
               <Route path="/administration" element={<StaffPage />}>
-                <Route index element={<TeachingStaff />} />
+                <Route
+                  index
+                  element={
+                    <Navigate to="/administration/teaching-staff" replace />
+                  }
+                />
                 <Route path="teaching-staff" element={<TeachingStaff />} />
                 <Route
                   path="non-teaching-staff"
