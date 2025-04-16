@@ -12,7 +12,7 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_created_at", ["createdAt"]),
 
-  // The rest of your schema stays the same
+  // Updated results schema with additional fields for totalMarks and percentage
   results: defineTable({
     year: v.string(),
     class: v.string(), // "10", "12Arts", "12Science", "12Commerce"
@@ -21,6 +21,8 @@ export default defineSchema({
         position: v.string(),
         name: v.string(),
         marks: v.string(),
+        totalMarks: v.optional(v.string()), // New field for total possible marks
+        percentage: v.optional(v.string()), // New field for calculated percentage
       })
     ),
     summary: v.optional(
@@ -31,11 +33,13 @@ export default defineSchema({
         firstPosition: v.object({
           name: v.string(),
           marks: v.string(),
+          totalMarks: v.optional(v.string()), // New field for total marks
           percentage: v.string(),
         }),
         secondPosition: v.object({
           name: v.string(),
           marks: v.string(),
+          totalMarks: v.optional(v.string()), // New field for total marks
           percentage: v.string(),
         }),
       })

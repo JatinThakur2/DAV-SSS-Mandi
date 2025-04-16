@@ -9,6 +9,8 @@ import {
   CardContent,
   CardActionArea,
   Divider,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Newspaper as NewsIcon,
@@ -17,13 +19,16 @@ import {
   Collections as GalleryIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useAdminAuth } from "../../contexts/AdminAuthContext"; // Changed from useAuth
+import { useAdminAuth } from "../../contexts/AdminAuthContext";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { user } = useAdminAuth(); // Changed from useAuth to useAdminAuth
+  const { user } = useAdminAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   // Get counts for dashboard
   const news = useQuery(api.news.getNews) || [];
@@ -73,9 +78,9 @@ function DashboardPage() {
         </Typography>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 5 }}>
+      <Grid container spacing={2}>
         {dashboardItems.map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item.title}>
+          <Grid item xs={6} sm={6} md={3} key={item.title}>
             <Card
               sx={{
                 height: "100%",
@@ -99,7 +104,7 @@ function DashboardPage() {
                       flexDirection: "column",
                       alignItems: "center",
                       textAlign: "center",
-                      py: 2,
+                      py: isMobile ? 1 : 2,
                     }}
                   >
                     <Box
@@ -107,7 +112,7 @@ function DashboardPage() {
                         bgcolor: `${item.color}15`,
                         color: item.color,
                         borderRadius: "50%",
-                        p: 2,
+                        p: isMobile ? 1 : 2,
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
@@ -116,10 +121,17 @@ function DashboardPage() {
                     >
                       {item.icon}
                     </Box>
-                    <Typography variant="h3" fontWeight="700" sx={{ mb: 1 }}>
+                    <Typography
+                      variant={isMobile ? "h4" : "h3"}
+                      fontWeight="700"
+                      sx={{ mb: 1 }}
+                    >
                       {item.count}
                     </Typography>
-                    <Typography variant="h6" color="text.secondary">
+                    <Typography
+                      variant={isMobile ? "body1" : "h6"}
+                      color="text.secondary"
+                    >
                       {item.title}
                     </Typography>
                   </Box>
@@ -130,13 +142,13 @@ function DashboardPage() {
         ))}
       </Grid>
 
-      <Paper sx={{ p: 3, borderRadius: 3, mb: 4 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, mb: 4, mt: 4 }}>
         <Typography variant="h5" gutterBottom>
           Quick Actions
         </Typography>
         <Divider sx={{ mb: 3 }} />
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card
               sx={{
                 bgcolor: "primary.main",
@@ -144,16 +156,18 @@ function DashboardPage() {
                 borderRadius: 2,
               }}
             >
-              <CardActionArea onClick={() => navigate("/admin/news/add")}>
-                <CardContent sx={{ textAlign: "center", py: 3 }}>
-                  <NewsIcon sx={{ fontSize: 30, mb: 1 }} />
-                  <Typography variant="h6">Add News</Typography>
+              <CardActionArea onClick={() => navigate("/admin/news")}>
+                <CardContent sx={{ textAlign: "center", py: { xs: 2, md: 3 } }}>
+                  <NewsIcon sx={{ fontSize: isMobile ? 24 : 30, mb: 1 }} />
+                  <Typography variant={isMobile ? "body1" : "h6"}>
+                    Add News
+                  </Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card
               sx={{
                 bgcolor: "success.main",
@@ -161,16 +175,18 @@ function DashboardPage() {
                 borderRadius: 2,
               }}
             >
-              <CardActionArea onClick={() => navigate("/admin/results/add")}>
-                <CardContent sx={{ textAlign: "center", py: 3 }}>
-                  <SchoolIcon sx={{ fontSize: 30, mb: 1 }} />
-                  <Typography variant="h6">Add Results</Typography>
+              <CardActionArea onClick={() => navigate("/admin/results")}>
+                <CardContent sx={{ textAlign: "center", py: { xs: 2, md: 3 } }}>
+                  <SchoolIcon sx={{ fontSize: isMobile ? 24 : 30, mb: 1 }} />
+                  <Typography variant={isMobile ? "body1" : "h6"}>
+                    Add Results
+                  </Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card
               sx={{
                 bgcolor: "warning.main",
@@ -178,18 +194,20 @@ function DashboardPage() {
                 borderRadius: 2,
               }}
             >
-              <CardActionArea
-                onClick={() => navigate("/admin/scholarships/add")}
-              >
-                <CardContent sx={{ textAlign: "center", py: 3 }}>
-                  <ScholarshipIcon sx={{ fontSize: 30, mb: 1 }} />
-                  <Typography variant="h6">Add Scholarship</Typography>
+              <CardActionArea onClick={() => navigate("/admin/scholarships")}>
+                <CardContent sx={{ textAlign: "center", py: { xs: 2, md: 3 } }}>
+                  <ScholarshipIcon
+                    sx={{ fontSize: isMobile ? 24 : 30, mb: 1 }}
+                  />
+                  <Typography variant={isMobile ? "body1" : "h6"}>
+                    Add Scholarship
+                  </Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={6} sm={6} md={3}>
             <Card
               sx={{
                 bgcolor: "error.main",
@@ -197,10 +215,12 @@ function DashboardPage() {
                 borderRadius: 2,
               }}
             >
-              <CardActionArea onClick={() => navigate("/admin/gallery/add")}>
-                <CardContent sx={{ textAlign: "center", py: 3 }}>
-                  <GalleryIcon sx={{ fontSize: 30, mb: 1 }} />
-                  <Typography variant="h6">Add Gallery Event</Typography>
+              <CardActionArea onClick={() => navigate("/admin/gallery")}>
+                <CardContent sx={{ textAlign: "center", py: { xs: 2, md: 3 } }}>
+                  <GalleryIcon sx={{ fontSize: isMobile ? 24 : 30, mb: 1 }} />
+                  <Typography variant={isMobile ? "body1" : "h6"}>
+                    Add Gallery Event
+                  </Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
@@ -208,7 +228,7 @@ function DashboardPage() {
         </Grid>
       </Paper>
 
-      <Paper sx={{ p: 3, borderRadius: 3 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3 }}>
         <Typography variant="h5" gutterBottom>
           Recent Updates
         </Typography>

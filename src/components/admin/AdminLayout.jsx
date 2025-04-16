@@ -1,5 +1,5 @@
 // src/components/admin/AdminLayout.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -19,6 +19,8 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -34,14 +36,26 @@ import {
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
 import OmLogo from "../common/OmLogo";
 
-const drawerWidth = 240;
+// Responsive drawer width
+const calculateDrawerWidth = (isDesktop) => (isDesktop ? 240 : 260);
 
 function AdminLayout() {
-  const [open, setOpen] = useState(true);
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [open, setOpen] = useState(isDesktop);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  const { user, logout } = useAdminAuth(); // Changed from useAuth to useAdminAuth
+  const { user, logout } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const drawerWidth = calculateDrawerWidth(isDesktop);
+
+  // Effect to handle drawer state based on screen size
+  useEffect(() => {
+    setOpen(isDesktop);
+  }, [isDesktop]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -66,6 +80,9 @@ function AdminLayout() {
 
   const navigateTo = (path) => {
     navigate(path);
+    if (!isDesktop) {
+      setOpen(false); // Close drawer when navigating on mobile
+    }
   };
 
   const menuItems = [
@@ -111,8 +128,8 @@ function AdminLayout() {
               duration: theme.transitions.duration.leavingScreen,
             }),
           ...(open && {
-            marginLeft: drawerWidth,
-            width: `calc(100% - ${drawerWidth}px)`,
+            marginLeft: isDesktop ? drawerWidth : 0,
+            width: isDesktop ? `calc(100% - ${drawerWidth}px)` : "100%",
             transition: (theme) =>
               theme.transitions.create(["width", "margin"], {
                 easing: theme.transitions.easing.sharp,
@@ -134,8 +151,16 @@ function AdminLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            DAV School Admin Panel
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              flexGrow: 1,
+              fontSize: isMobile ? "1rem" : "1.25rem",
+            }}
+          >
+            DAV School Admin
           </Typography>
           <Tooltip title="Visit Website">
             <IconButton
@@ -189,8 +214,9 @@ function AdminLayout() {
         </Toolbar>
       </AppBar>
       <Drawer
-        variant="permanent"
+        variant={isDesktop ? "permanent" : "temporary"}
         open={open}
+        onClose={handleDrawerClose}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -291,9 +317,11 @@ function AdminLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           bgcolor: "#f8f9fa",
           minHeight: "100vh",
+          width: "100%",
+          overflow: "auto",
         }}
       >
         <Toolbar />
