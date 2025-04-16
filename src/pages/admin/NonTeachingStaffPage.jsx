@@ -1,4 +1,4 @@
-// src/pages/admin/TeachingStaffPage.jsx
+// src/pages/admin/NonTeachingStaffPage.jsx
 import React, { useState } from "react";
 import {
   Box,
@@ -27,6 +27,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -37,7 +39,10 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import ImageUploader from "../../components/admin/common/ImageUploader";
 
-function TeachingStaffPage() {
+function NonTeachingStaffPage() {
+  // Tab state for different staff types
+  const [tabValue, setTabValue] = useState(0);
+
   // State for dialogs
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -53,9 +58,10 @@ function TeachingStaffPage() {
   // State for current staff member being edited
   const [currentStaff, setCurrentStaff] = useState({
     name: "",
-    designation: "PGT",
+    designation: "",
     qualification: "",
     experience: "",
+    staffType: "ministerial", // "ministerial" or "supporting"
     imageUrl: "",
     order: 0,
   });
@@ -63,36 +69,36 @@ function TeachingStaffPage() {
   const [currentStaffId, setCurrentStaffId] = useState(null);
 
   // Convex API hooks
-  const teachingStaff = useQuery(api.staff.getTeachingStaff) || [];
-  const addTeachingStaff = useMutation(api.staff.addTeachingStaff);
-  const updateTeachingStaff = useMutation(api.staff.updateTeachingStaff);
-  const deleteTeachingStaff = useMutation(api.staff.deleteTeachingStaff);
+  const ministerialStaff =
+    useQuery(api.staff.getNonTeachingStaff, { staffType: "ministerial" }) || [];
+  const supportingStaff =
+    useQuery(api.staff.getNonTeachingStaff, { staffType: "supporting" }) || [];
+  const addNonTeachingStaff = useMutation(api.staff.addNonTeachingStaff);
+  const updateNonTeachingStaff = useMutation(api.staff.updateNonTeachingStaff);
+  const deleteNonTeachingStaff = useMutation(api.staff.deleteNonTeachingStaff);
 
   // Designation options
-  const designationOptions = [
-    { value: "Principal", label: "Principal" },
-    { value: "Vice Principal", label: "Vice Principal" },
-    { value: "PGT Commerce", label: "PGT Commerce" },
-    { value: "PGT Chemistry", label: "PGT Chemistry" },
-    { value: "PGT Maths", label: "PGT Maths" },
-    { value: "PGT Hindi", label: "PGT Hindi" },
-    { value: "PGT English", label: "PGT English" },
-    { value: "PGT Bio", label: "PGT Bio" },
-    { value: "PGT Physics", label: "PGT Physics" },
-    { value: "PGT Computers", label: "PGT Computers" },
-    { value: "PGT P.Ed", label: "PGT P.Ed (Physical Education)" },
-    { value: "PGT Pol Sci", label: "PGT Political Science" },
-    { value: "PGT Economics", label: "PGT Economics" },
-    { value: "TGT Arts", label: "TGT Arts" },
-    { value: "TGT Medical", label: "TGT Medical" },
-    { value: "TGT Non Medical", label: "TGT Non Medical" },
-    { value: "TGT Sanskrit", label: "TGT Sanskrit" },
-    { value: "JBT", label: "JBT" },
-    { value: "Asstt Librarian", label: "Assistant Librarian" },
-    { value: "Arts & Craft", label: "Arts & Craft" },
-    { value: "LT", label: "LT" },
-    { value: "Other", label: "Other" },
+  const ministerialOptions = [
+    { value: "Office Incharge", label: "Office Incharge" },
+    { value: "Office Assistant", label: "Office Assistant" },
+    { value: "Accountant", label: "Accountant" },
+    { value: "Computer Operator", label: "Computer Operator" },
+    { value: "Clerk", label: "Clerk" },
+    { value: "Other Ministerial", label: "Other Ministerial Staff" },
   ];
+
+  const supportingOptions = [
+    { value: "Peon", label: "Peon" },
+    { value: "Chowkidar", label: "Chowkidar" },
+    { value: "Attendant", label: "Attendant" },
+    { value: "Garden Attendant", label: "Garden Attendant" },
+    { value: "Lab Attendant", label: "Lab Attendant" },
+    { value: "Other Supporting", label: "Other Supporting Staff" },
+  ];
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   // Handle dialog open/close
   const handleOpenDialog = (mode, staff = null) => {
@@ -103,6 +109,7 @@ function TeachingStaffPage() {
         designation: staff.designation,
         qualification: staff.qualification,
         experience: staff.experience,
+        staffType: staff.staffType,
         imageUrl: staff.imageUrl || "",
         order: staff.order || 0,
       });
@@ -110,9 +117,10 @@ function TeachingStaffPage() {
     } else {
       setCurrentStaff({
         name: "",
-        designation: "PGT",
+        designation: "",
         qualification: "",
         experience: "",
+        staffType: tabValue === 0 ? "ministerial" : "supporting",
         imageUrl: "",
         order: 0,
       });
@@ -155,14 +163,14 @@ function TeachingStaffPage() {
   const handleSaveStaff = async () => {
     try {
       if (dialogMode === "add") {
-        await addTeachingStaff(currentStaff);
+        await addNonTeachingStaff(currentStaff);
         setSnackbar({
           open: true,
           message: `Staff member "${currentStaff.name}" added successfully`,
           severity: "success",
         });
       } else {
-        await updateTeachingStaff({
+        await updateNonTeachingStaff({
           id: currentStaffId,
           ...currentStaff,
         });
@@ -186,7 +194,7 @@ function TeachingStaffPage() {
   // Handle delete staff
   const handleDeleteStaff = async () => {
     try {
-      await deleteTeachingStaff({ id: currentStaffId });
+      await deleteNonTeachingStaff({ id: currentStaffId });
       setSnackbar({
         open: true,
         message: "Staff member deleted successfully",
@@ -218,23 +226,18 @@ function TeachingStaffPage() {
   };
 
   // Helper function to get color based on designation
-  const getDesignationColor = (designation) => {
-    const colors = {
-      Principal: "#8e24aa",
-      "Vice Principal": "#5e35b1",
-      PGT: "#1976d2",
-      TGT: "#00897b",
-      JBT: "#43a047",
-      "Asstt Librarian": "#fb8c00",
-      "Arts & Craft": "#d81b60",
-    };
-
-    for (const key in colors) {
-      if (designation.includes(key)) {
-        return colors[key];
-      }
+  const getDesignationColor = (designation, staffType) => {
+    if (staffType === "ministerial") {
+      if (designation.includes("Incharge")) return "#8e24aa";
+      if (designation.includes("Assistant")) return "#5e35b1";
+      if (designation.includes("Accountant")) return "#1976d2";
+      return "#00897b"; // Default for ministerial
+    } else {
+      if (designation.includes("Chowkidar")) return "#f57c00";
+      if (designation.includes("Peon")) return "#43a047";
+      if (designation.includes("Attendant")) return "#d81b60";
+      return "#757575"; // Default for supporting
     }
-    return "#757575"; // Default color
   };
 
   return (
@@ -247,7 +250,7 @@ function TeachingStaffPage() {
           mb: 3,
         }}
       >
-        <Typography variant="h4">Teaching Staff Management</Typography>
+        <Typography variant="h4">Non-Teaching Staff Management</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -256,6 +259,17 @@ function TeachingStaffPage() {
           Add Staff Member
         </Button>
       </Box>
+
+      <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        indicatorColor="primary"
+        textColor="primary"
+        sx={{ mb: 3 }}
+      >
+        <Tab label="Ministerial Staff" />
+        <Tab label="Supporting Staff" />
+      </Tabs>
 
       <Paper sx={{ p: 3, borderRadius: 2 }}>
         <TableContainer>
@@ -272,86 +286,93 @@ function TeachingStaffPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {teachingStaff.length === 0 ? (
+              {(tabValue === 0 ? ministerialStaff : supportingStaff).length ===
+              0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center">
                     <Typography variant="body1" sx={{ py: 3 }}>
-                      No teaching staff found. Click the button above to add
-                      some.
+                      No {tabValue === 0 ? "ministerial" : "supporting"} staff
+                      found. Click the button above to add some.
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                teachingStaff.map((staff) => (
-                  <TableRow key={staff._id} hover>
-                    <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        {staff.imageUrl ? (
-                          <Avatar
-                            src={staff.imageUrl}
-                            alt={staff.name}
-                            sx={{
-                              mr: 2,
-                              width: 36,
-                              height: 36,
-                            }}
-                          />
-                        ) : (
-                          <Avatar
-                            sx={{
-                              mr: 2,
-                              bgcolor: getDesignationColor(staff.designation),
-                              width: 36,
-                              height: 36,
-                              fontSize: "0.875rem",
-                            }}
+                (tabValue === 0 ? ministerialStaff : supportingStaff).map(
+                  (staff) => (
+                    <TableRow key={staff._id} hover>
+                      <TableCell>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          {staff.imageUrl ? (
+                            <Avatar
+                              src={staff.imageUrl}
+                              alt={staff.name}
+                              sx={{
+                                mr: 2,
+                                width: 36,
+                                height: 36,
+                              }}
+                            />
+                          ) : (
+                            <Avatar
+                              sx={{
+                                mr: 2,
+                                bgcolor: getDesignationColor(
+                                  staff.designation,
+                                  staff.staffType
+                                ),
+                                width: 36,
+                                height: 36,
+                                fontSize: "0.875rem",
+                              }}
+                            >
+                              {getInitials(staff.name)}
+                            </Avatar>
+                          )}
+                          {staff.name}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={staff.designation}
+                          size="small"
+                          sx={{
+                            backgroundColor: getDesignationColor(
+                              staff.designation,
+                              staff.staffType
+                            ),
+                            color: "white",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{staff.qualification}</TableCell>
+                      <TableCell>{staff.experience}</TableCell>
+                      <TableCell align="center">
+                        <Stack
+                          direction="row"
+                          justifyContent="center"
+                          spacing={1}
+                        >
+                          <IconButton
+                            color="primary"
+                            size="small"
+                            onClick={() => handleOpenDialog("edit", staff)}
                           >
-                            {getInitials(staff.name)}
-                          </Avatar>
-                        )}
-                        {staff.name}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={staff.designation}
-                        size="small"
-                        sx={{
-                          backgroundColor: getDesignationColor(
-                            staff.designation
-                          ),
-                          color: "white",
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>{staff.qualification}</TableCell>
-                    <TableCell>{staff.experience}</TableCell>
-                    <TableCell align="center">
-                      <Stack
-                        direction="row"
-                        justifyContent="center"
-                        spacing={1}
-                      >
-                        <IconButton
-                          color="primary"
-                          size="small"
-                          onClick={() => handleOpenDialog("edit", staff)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          size="small"
-                          onClick={() =>
-                            handleOpenDeleteDialog(staff._id, staff.name)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            color="error"
+                            size="small"
+                            onClick={() =>
+                              handleOpenDeleteDialog(staff._id, staff.name)
+                            }
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  )
+                )
               )}
             </TableBody>
           </Table>
@@ -383,6 +404,19 @@ function TeachingStaffPage() {
             />
 
             <FormControl fullWidth sx={{ mb: 3 }}>
+              <InputLabel>Staff Type</InputLabel>
+              <Select
+                name="staffType"
+                value={currentStaff.staffType}
+                label="Staff Type"
+                onChange={handleInputChange}
+              >
+                <MenuItem value="ministerial">Ministerial Staff</MenuItem>
+                <MenuItem value="supporting">Supporting Staff</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth sx={{ mb: 3 }}>
               <InputLabel>Designation</InputLabel>
               <Select
                 name="designation"
@@ -390,7 +424,10 @@ function TeachingStaffPage() {
                 label="Designation"
                 onChange={handleInputChange}
               >
-                {designationOptions.map((option) => (
+                {(currentStaff.staffType === "ministerial"
+                  ? ministerialOptions
+                  : supportingOptions
+                ).map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -495,4 +532,4 @@ function TeachingStaffPage() {
   );
 }
 
-export default TeachingStaffPage;
+export default NonTeachingStaffPage;

@@ -51,6 +51,12 @@ const AdminScholarshipsPage = React.lazy(
   () => import("./pages/admin/ScholarshipsPage")
 );
 const AdminGalleryPage = React.lazy(() => import("./pages/admin/GalleryPage"));
+const TeachingStaffPage = React.lazy(
+  () => import("./pages/admin/TeachingStaffPage")
+);
+const NonTeachingStaffPage = React.lazy(
+  () => import("./pages/admin/NonTeachingStaffPage")
+);
 
 // Nested components
 const AboutDAV = React.lazy(() => import("./components/about/AboutDAV"));
@@ -111,6 +117,11 @@ function AdminRoutesWrapper() {
             <Route path="scholarships" element={<AdminScholarshipsPage />} />
             <Route path="gallery" element={<AdminGalleryPage />} />
             <Route path="houses" element={<HousesPage />} />
+            <Route path="teaching-staff" element={<TeachingStaffPage />} />
+            <Route
+              path="non-teaching-staff"
+              element={<NonTeachingStaffPage />}
+            />
           </Route>
         </Route>
       </Routes>
