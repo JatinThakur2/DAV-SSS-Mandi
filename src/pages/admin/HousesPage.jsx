@@ -23,6 +23,10 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -121,6 +125,8 @@ function HousesPage() {
     id: null,
   });
   const [dialogMode, setDialogMode] = useState("add");
+  const [positionType, setPositionType] = useState("other");
+  const [customPosition, setCustomPosition] = useState("");
 
   // Current edited items
   const [currentHouseInfo, setCurrentHouseInfo] = useState({
@@ -170,6 +176,37 @@ function HousesPage() {
     setTabValue(newValue);
   };
 
+  // Preset position options
+  const positionOptions = [
+    { value: "head-boy", label: "HEAD BOY" },
+    { value: "head-girl", label: "HEAD GIRL" },
+    { value: "captain-boy", label: "SCHOOL CAPTAIN (BOY)" },
+    { value: "captain-girl", label: "SCHOOL CAPTAIN (GIRL)" },
+    { value: "other", label: "Other" },
+  ];
+
+  // Determine position type from a position string
+  const determinePositionType = (position) => {
+    if (!position) return "other";
+
+    position = position.toUpperCase();
+
+    if (position === "HEAD BOY") return "head-boy";
+    if (position === "HEAD GIRL") return "head-girl";
+    if (position.includes("CAPTAIN") && position.includes("BOY"))
+      return "captain-boy";
+    if (position.includes("CAPTAIN") && position.includes("GIRL"))
+      return "captain-girl";
+
+    return "other";
+  };
+
+  // Get position name from position type
+  const getPositionName = (type) => {
+    const option = positionOptions.find((opt) => opt.value === type);
+    return option ? option.label : "";
+  };
+
   // Dialog handlers
   const handleOpenHouseInfoDialog = () => {
     if (houseInfo) {
@@ -186,6 +223,15 @@ function HousesPage() {
   const handleOpenPresidiumDialog = (mode, item = null) => {
     setDialogMode(mode);
     if (mode === "edit" && item) {
+      const type = determinePositionType(item.position);
+      setPositionType(type);
+
+      if (type === "other") {
+        setCustomPosition(item.position);
+      } else {
+        setCustomPosition("");
+      }
+
       setCurrentPresidium({
         position: item.position,
         name: item.name,
@@ -196,6 +242,10 @@ function HousesPage() {
     } else {
       const defaultYear =
         new Date().getFullYear() + "-" + (new Date().getFullYear() + 1);
+
+      setPositionType("other");
+      setCustomPosition("");
+
       setCurrentPresidium({
         position: "",
         name: "",
@@ -262,8 +312,22 @@ function HousesPage() {
 
   const handleSavePresidium = async () => {
     try {
+      // Determine the position based on the selected type
+      let position = "";
+
+      if (positionType === "other") {
+        position = customPosition;
+      } else {
+        position = getPositionName(positionType);
+      }
+
+      const updatedPresidium = {
+        ...currentPresidium,
+        position: position,
+      };
+
       if (dialogMode === "add") {
-        await addPresidiumMember(currentPresidium);
+        await addPresidiumMember(updatedPresidium);
         setSnackbar({
           open: true,
           message: "Presidium member added successfully",
@@ -272,7 +336,7 @@ function HousesPage() {
       } else {
         await updatePresidiumMember({
           id: currentItemId,
-          ...currentPresidium,
+          ...updatedPresidium,
         });
         setSnackbar({
           open: true,
@@ -362,6 +426,29 @@ function HousesPage() {
   const handlePresidiumChange = (e) => {
     const { name, value } = e.target;
     setCurrentPresidium((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePositionTypeChange = (e) => {
+    const type = e.target.value;
+    setPositionType(type);
+
+    if (type !== "other") {
+      // Set the position based on the selected type
+      const position = getPositionName(type);
+      setCurrentPresidium((prev) => ({
+        ...prev,
+        position: position,
+      }));
+    }
+  };
+
+  const handleCustomPositionChange = (e) => {
+    const value = e.target.value;
+    setCustomPosition(value);
+    setCurrentPresidium((prev) => ({
+      ...prev,
+      position: value,
+    }));
   };
 
   const handleHouseChange = (e) => {
@@ -661,30 +748,52 @@ function HousesPage() {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
+            {/* Position Type Dropdown */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Position Type</InputLabel>
+              <Select
+                value={positionType}
+                onChange={handlePositionTypeChange}
+                label="Position Type"
+              >
+                {positionOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Custom Position Field (shown only when 'Other' is selected) */}
+            {positionType === "other" && (
+              <TextField
+                fullWidth
+                label="Custom Position"
+                value={customPosition}
+                onChange={handleCustomPositionChange}
+                margin="normal"
+                placeholder="e.g., VICE CAPTAIN, SPORTS CAPTAIN"
+              />
+            )}
+
             <TextField
-              fullWidth
-              label="Position"
-              name="position"
-              value={currentPresidium.position}
-              onChange={handlePresidiumChange}
-              margin="normal"
-              placeholder="e.g., HEAD BOY, SCHOOL CAPTAIN (GIRL)"
-            />
-            <TextField
-              fullWidth
-              label="Name"
+              margin="dense"
               name="name"
+              label="Name"
+              type="text"
+              fullWidth
               value={currentPresidium.name}
               onChange={handlePresidiumChange}
-              margin="normal"
             />
+
             <TextField
-              fullWidth
-              label="Academic Year"
+              margin="dense"
               name="year"
+              label="Academic Year"
+              type="text"
+              fullWidth
               value={currentPresidium.year}
               onChange={handlePresidiumChange}
-              margin="normal"
               placeholder="e.g., 2023-2024"
             />
 
@@ -705,9 +814,9 @@ function HousesPage() {
             variant="contained"
             onClick={handleSavePresidium}
             disabled={
-              !currentPresidium.position ||
               !currentPresidium.name ||
-              !currentPresidium.year
+              !currentPresidium.year ||
+              (positionType === "other" && !customPosition)
             }
           >
             {dialogMode === "add" ? "Add" : "Save"}

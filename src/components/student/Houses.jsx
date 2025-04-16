@@ -37,7 +37,7 @@ function Houses() {
   const currentYear =
     presidium && presidium.length > 0 ? presidium[0].year : "2023-2024"; // Default fallback
 
-  // House colors mapping
+  // House colors mapping (only used when a house doesn't define its own color)
   const houseColors = {
     "GANDHI HOUSE": "#4CAF50", // Green
     "NEHRU HOUSE": "#2196F3", // Blue
@@ -149,7 +149,7 @@ function Houses() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {headBoy?.name || "ADARSH THAKUR"}
+                  {headBoy?.name || "Head Boy Position"}
                 </Typography>
                 <Chip
                   label={headBoy?.position || "HEAD BOY"}
@@ -190,7 +190,7 @@ function Houses() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {headGirl?.name || "JIYA JAMWAL"}
+                  {headGirl?.name || "Head Girl Position"}
                 </Typography>
                 <Chip
                   label={headGirl?.position || "HEAD GIRL"}
@@ -233,7 +233,7 @@ function Houses() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {schoolCaptainBoy?.name || "NITESH KUMAR"}
+                  {schoolCaptainBoy?.name || "School Captain (Boy) Position"}
                 </Typography>
                 <Chip
                   label={schoolCaptainBoy?.position || "SCHOOL CAPTAIN (BOY)"}
@@ -276,7 +276,7 @@ function Houses() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {schoolCaptainGirl?.name || "YASHIKA KAUNDAL"}
+                  {schoolCaptainGirl?.name || "School Captain (Girl) Position"}
                 </Typography>
                 <Chip
                   label={schoolCaptainGirl?.position || "SCHOOL CAPTAIN (GIRL)"}
@@ -444,49 +444,6 @@ function Houses() {
           </Grid>
         )}
       </Grid>
-
-      {/* Fallback if no houses defined */}
-      {(!houses || houses.length === 0) && (
-        <TableContainer component={Paper} sx={{ mt: 2 }}>
-          <Table aria-label="houses table">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "primary.main" }}>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                  HOUSE
-                </TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                  CAPTAINS
-                </TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                  HOUSE TEACHER
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>GANDHI HOUSE</TableCell>
-                <TableCell>KASHISH & AKHIL</TableCell>
-                <TableCell>Mrs YOGITA</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NEHRU HOUSE</TableCell>
-                <TableCell>MUSKAN & ADITYA</TableCell>
-                <TableCell>Mrs KUNJAN</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>TAGORE HOUSE</TableCell>
-                <TableCell>JAHANVI & ANKIT</TableCell>
-                <TableCell>Mrs APARNA</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>TILAK HOUSE</TableCell>
-                <TableCell>MAHIMA & PARVEEN</TableCell>
-                <TableCell>Mrs SUNITA</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
     </Box>
   );
 }
