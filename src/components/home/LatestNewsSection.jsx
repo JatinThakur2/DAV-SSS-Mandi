@@ -10,6 +10,7 @@ import {
   Alert,
   IconButton,
   Tooltip,
+  useMediaQuery,
 } from "@mui/material";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -17,14 +18,14 @@ import { format, parseISO } from "date-fns";
 import { OpenInNew as OpenInNewIcon } from "@mui/icons-material";
 
 // CSS class-based marquee with fade effects
-const MarqueeContent = ({ children }) => {
+const MarqueeContent = ({ children, height = "300px" }) => {
   const [isPaused, setIsPaused] = useState(false);
 
   return (
     <Box
       className="marquee-container"
       sx={{
-        height: "300px",
+        height: height,
         overflow: "hidden",
         position: "relative",
         mx: 2, // Add margin to the left and right
@@ -92,7 +93,20 @@ const MarqueeContent = ({ children }) => {
   );
 };
 
-const LatestNewsSection = () => {
+const LatestNewsSection = ({ overlayMode = false }) => {
+  const isIpadSize = useMediaQuery("(min-width:768px) and (max-width:820px)");
+
+  // Adjust marquee height for overlay mode and iPad-sized screens
+  const getMarqueeHeight = () => {
+    if (overlayMode) {
+      if (isIpadSize) {
+        return "180px"; // Shorter height for iPad in overlay mode
+      }
+      return "250px"; // Default for overlay mode
+    }
+    return "300px"; // Default height
+  };
+
   // Fetch news and notices from Convex
   const news = useQuery(api.news.getNews, { isNotice: false }) || [];
   const notices = useQuery(api.news.getNews, { isNotice: true }) || [];
@@ -116,25 +130,29 @@ const LatestNewsSection = () => {
     }
   };
 
+  // Adjusted NewsItem component with conditional styling for overlay mode
   const NewsItem = ({ item }) => (
     <Box
       sx={{
-        mb: 3,
+        mb: overlayMode && isIpadSize ? 2 : 3,
         position: "relative",
         pr: 5, // Make room for the icon button
         pb: 1,
         borderBottom: "1px solid rgba(0,0,0,0.12)",
       }}
     >
-      <Typography variant="h6" sx={{ pr: 4 }}>
+      <Typography
+        variant={overlayMode && isIpadSize ? "subtitle1" : "h6"}
+        sx={{ pr: 4 }}
+      >
         {item.title}
       </Typography>
       <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
         {formatDate(item.date)}
       </Typography>
       <Typography variant="body2">
-        {item.description.length > 120
-          ? `${item.description.substring(0, 120)}...`
+        {item.description.length > (overlayMode && isIpadSize ? 80 : 120)
+          ? `${item.description.substring(0, overlayMode && isIpadSize ? 80 : 120)}...`
           : item.description}
       </Typography>
 
@@ -165,6 +183,122 @@ const LatestNewsSection = () => {
     </Box>
   );
 
+  // In overlay mode, remove the outer margins and styling
+  if (overlayMode) {
+    return (
+      <Grid container spacing={isIpadSize ? 2 : 4}>
+        {/* Latest News Card */}
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              height: isIpadSize ? "300px" : "400px",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <CardContent sx={{ flexGrow: 0, pb: 1 }}>
+              <Typography variant={isIpadSize ? "h6" : "h5"} gutterBottom>
+                Latest News
+              </Typography>
+            </CardContent>
+
+            <Divider />
+
+            <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
+              {isLoading ? (
+                // Loading skeleton
+                <Box sx={{ p: 2 }}>
+                  {Array.from(new Array(2)).map((_, index) => (
+                    <Box key={index} sx={{ mb: 2 }}>
+                      <Skeleton variant="text" width="60%" height={30} />
+                      <Skeleton variant="text" width="30%" height={20} />
+                      <Skeleton variant="text" height={50} />
+                      <Skeleton
+                        variant="rectangular"
+                        width={40}
+                        height={40}
+                        sx={{ mt: 1, position: "absolute", right: 16, top: 10 }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : latestNews.length === 0 ? (
+                // No news case
+                <Box sx={{ p: 2 }}>
+                  <Alert severity="info">No recent news available.</Alert>
+                </Box>
+              ) : (
+                // Display news with marquee effect
+                <MarqueeContent height={getMarqueeHeight()}>
+                  <Box>
+                    {latestNews.map((newsItem) => (
+                      <NewsItem key={newsItem._id} item={newsItem} />
+                    ))}
+                  </Box>
+                </MarqueeContent>
+              )}
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Notices Card */}
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              height: isIpadSize ? "300px" : "400px",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <CardContent sx={{ flexGrow: 0, pb: 1 }}>
+              <Typography variant={isIpadSize ? "h6" : "h5"} gutterBottom>
+                Notices
+              </Typography>
+            </CardContent>
+
+            <Divider />
+
+            <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
+              {isLoading ? (
+                // Loading skeleton
+                <Box sx={{ p: 2 }}>
+                  {Array.from(new Array(2)).map((_, index) => (
+                    <Box key={index} sx={{ mb: 2 }}>
+                      <Skeleton variant="text" width="60%" height={30} />
+                      <Skeleton variant="text" width="30%" height={20} />
+                      <Skeleton variant="text" height={50} />
+                      <Skeleton
+                        variant="rectangular"
+                        width={40}
+                        height={40}
+                        sx={{ mt: 1, position: "absolute", right: 16, top: 10 }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : latestNotices.length === 0 ? (
+                // No notices case
+                <Box sx={{ p: 2 }}>
+                  <Alert severity="info">No recent notices available.</Alert>
+                </Box>
+              ) : (
+                // Display notices with marquee effect
+                <MarqueeContent height={getMarqueeHeight()}>
+                  <Box>
+                    {latestNotices.map((notice) => (
+                      <NewsItem key={notice._id} item={notice} />
+                    ))}
+                  </Box>
+                </MarqueeContent>
+              )}
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
+    );
+  }
+
+  // Standard mode with normal margins and divider
   return (
     <Box sx={{ my: 4 }}>
       <Grid container spacing={4}>

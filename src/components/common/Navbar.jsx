@@ -130,6 +130,7 @@ function Navbar() {
       subItems: [
         { label: "Scholarship", path: "/student-zone/scholarship" },
         { label: "Results", path: "/student-zone/results" },
+        { label: "Houses", path: "/student-zone/houses" },
       ],
     },
   ];

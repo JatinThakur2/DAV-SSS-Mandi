@@ -17,6 +17,7 @@ import Footer from "./components/common/Footer";
 import ScrollToTop from "./components/common/ScrollToTop";
 import Loader from "./components/common/Loader";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+import Houses from "./components/student/Houses";
 
 // Import Auth Providers
 import { AuthProvider } from "./contexts/AuthContext";
@@ -73,6 +74,7 @@ const Scholarship = React.lazy(
   () => import("./components/student/Scholarship")
 );
 const Results = React.lazy(() => import("./components/student/Results"));
+const HousesPage = React.lazy(() => import("./pages/admin/HousesPage"));
 
 // Admin routes component
 function AdminRoutesWrapper() {
@@ -107,6 +109,7 @@ function AdminRoutesWrapper() {
             <Route path="results" element={<AdminResultsPage />} />
             <Route path="scholarships" element={<AdminScholarshipsPage />} />
             <Route path="gallery" element={<AdminGalleryPage />} />
+            <Route path="houses" element={<HousesPage />} />
           </Route>
         </Route>
       </Routes>
@@ -150,6 +153,7 @@ function PublicRoutes() {
                 <Route index element={<Scholarship />} />
                 <Route path="scholarship" element={<Scholarship />} />
                 <Route path="results" element={<Results />} />
+                <Route path="houses" element={<Houses />} />
               </Route>
 
               <Route path="/gallery" element={<GalleryPage />} />

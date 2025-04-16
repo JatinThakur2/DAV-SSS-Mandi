@@ -84,6 +84,37 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_email", ["email"]),
 
+  // House system general information
+  houseInfo: defineTable({
+    title: v.string(),
+    description: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }),
+
+  // School presidium (leadership)
+  schoolPresidium: defineTable({
+    position: v.string(), // e.g., "HEAD BOY", "HEAD GIRL", etc.
+    name: v.string(),
+    year: v.string(), // e.g., "2023-2024"
+    imageUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_year", ["year"]),
+
+  // Houses data
+  houses: defineTable({
+    name: v.string(), // e.g., "GANDHI HOUSE", "NEHRU HOUSE"
+    captainBoy: v.string(),
+    captainGirl: v.string(),
+    houseTeacher: v.string(),
+    color: v.optional(v.string()), // Color associated with the house
+    imageUrl: v.optional(v.string()),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_name", ["name"]),
+
   sessions: defineTable({
     userId: v.id("users"),
     token: v.string(),

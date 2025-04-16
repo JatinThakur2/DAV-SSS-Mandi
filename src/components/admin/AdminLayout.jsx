@@ -111,6 +111,11 @@ function AdminLayout() {
       icon: <GalleryIcon />,
       path: "/admin/gallery",
     },
+    {
+      text: "Houses",
+      icon: <HomeIcon />, // You can use a different icon if preferred
+      path: "/admin/houses",
+    },
   ];
 
   const isActive = (path) => location.pathname === path;

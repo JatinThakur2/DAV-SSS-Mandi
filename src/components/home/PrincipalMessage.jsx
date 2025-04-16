@@ -6,7 +6,10 @@ import {
   Typography,
   CardMedia,
   Grid,
+  Paper,
 } from "@mui/material";
+// Import the image from assets
+import principalImage from "../../assets/images/principal.jpg"; // Adjust the path as necessary
 
 function PrincipalMessage() {
   return (
@@ -14,42 +17,48 @@ function PrincipalMessage() {
       <Grid container spacing={4}>
         {/* Card 1: Information about the Principal */}
         <Grid item xs={12} md={5}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image="/api/placeholder/200/200"
-                  alt="Principal Image"
-                  sx={{ borderRadius: "50%", width: 200, height: 200, mb: 2 }}
-                />
-                <Box sx={{ mt: "auto", textAlign: "center" }}>
-                  <Typography variant="h5">About the Principal</Typography>
-                  <Typography variant="body1">
-                    <strong>Name:</strong> Mrs. Sangeeta Kapoor
-                  </Typography>
-                  <Typography variant="body1">
-                    <strong>Experience:</strong> 20+ years in educational
-                    leadership
-                  </Typography>
-                  <Typography variant="body1">
-                    <strong>Qualifications:</strong> M.A., B.Ed.
-                  </Typography>
-                  <Typography variant="body1">
-                    Mrs. Sangeeta Kapoor is committed to fostering holistic
-                    development and academic excellence.
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
+          <Card sx={{ height: "100%", position: "relative" }}>
+            <CardMedia
+              component="img"
+              image={principalImage} // Use the imported image
+              alt="Principal Image"
+              sx={{
+                height: "100%",
+                width: "100%",
+                objectFit: "cover",
+                minHeight: 500,
+              }}
+            />
+            <Paper
+              elevation={3}
+              sx={{
+                position: "absolute",
+                bottom: 16,
+                right: 16,
+                left: 16,
+                maxWidth: "100%",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                p: 2,
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="h6" gutterBottom>
+                About the Principal
+              </Typography>
+              <Typography variant="body2" paragraph sx={{ mb: 0.5 }}>
+                <strong>Name:</strong> Mrs. Sangeeta Kapoor
+              </Typography>
+              <Typography variant="body2" paragraph sx={{ mb: 0.5 }}>
+                <strong>Experience:</strong> 20+ years in educational leadership
+              </Typography>
+              <Typography variant="body2" paragraph sx={{ mb: 0.5 }}>
+                <strong>Qualifications:</strong> M.A., B.Ed.
+              </Typography>
+              <Typography variant="body2">
+                Mrs. Sangeeta Kapoor is committed to fostering holistic
+                development and academic excellence.
+              </Typography>
+            </Paper>
           </Card>
         </Grid>
 

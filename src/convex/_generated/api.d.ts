@@ -16,6 +16,7 @@ import type {
 import type * as auth from "../auth.js";
 import type * as files from "../files.js";
 import type * as gallery from "../gallery.js";
+import type * as houses from "../houses.js";
 import type * as news from "../news.js";
 import type * as results from "../results.js";
 import type * as scholarships from "../scholarships.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   files: typeof files;
   gallery: typeof gallery;
+  houses: typeof houses;
   news: typeof news;
   results: typeof results;
   scholarships: typeof scholarships;

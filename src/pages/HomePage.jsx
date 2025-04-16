@@ -1,4 +1,4 @@
-// src/pages/HomePage.jsx
+// src/pages/HomePage.jsx - Updated with responsive fixes
 import React from "react";
 import {
   Container,
@@ -59,9 +59,35 @@ function HomePage() {
 
   return (
     <Box>
-      {/* Hero Section with Carousel */}
-      <HomeCarousel />
+      {/* Hero Section with Carousel and overlaid News */}
+      <Box sx={{ position: "relative" }}>
+        {/* Full-width carousel in the background */}
+        <HomeCarousel />
 
+        {/* News section overlaid on top with higher z-index - DESKTOP ONLY */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "200px",
+            right: "50px",
+            width: "40%",
+            maxHeight: "800px",
+            zIndex: 5,
+            display: { xs: "none", sm: "none", md: "block" }, // Only show on desktop (md and up)
+          }}
+        >
+          <LatestNewsSection overlayMode={true} />
+        </Box>
+      </Box>
+
+      {/* Mobile and Tablet News Section */}
+      <Box sx={{ display: { xs: "block", sm: "block", md: "none" }, my: 3 }}>
+        <Container>
+          <LatestNewsSection />
+        </Container>
+      </Box>
+
+      {/* Rest of the component remains the same */}
       {/* Key Features Section */}
       <Box sx={{ py: 8, backgroundColor: "#f8f9fa" }}>
         <Container maxWidth="lg">
@@ -298,33 +324,6 @@ function HomePage() {
               </ScrollEffect>
             </Grid>
           </Grid>
-        </Container>
-      </Box>
-
-      {/* Latest News & Notices Section */}
-      <Box sx={{ py: 8 }}>
-        <Container maxWidth="lg">
-          <ScrollEffect>
-            <Box sx={{ mb: 4, textAlign: "center" }}>
-              <Typography
-                variant="h3"
-                gutterBottom
-                sx={{ fontWeight: 700, color: "secondary.main" }}
-              >
-                Latest News & Announcements
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{ maxWidth: 700, mx: "auto", color: "text.secondary" }}
-              >
-                Stay updated with the latest happenings, events, and
-                announcements at DAV SSS Mandi.
-              </Typography>
-            </Box>
-          </ScrollEffect>
-          <ScrollEffect delay={0.2}>
-            <LatestNewsSection />
-          </ScrollEffect>
         </Container>
       </Box>
 

@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  Typography,
-  Box,
-  Paper,
-  Tabs,
-  Tab,
-  Alert,
-  Skeleton,
-} from "@mui/material";
+import { Typography, Box, Tabs, Tab, Alert, Skeleton } from "@mui/material";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import ClassResultsComponent from "./ClassResultsComponent";

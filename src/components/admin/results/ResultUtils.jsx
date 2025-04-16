@@ -1,5 +1,5 @@
 // src/components/admin/results/ResultUtils.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Helper function to calculate percentage from marks and total
 export const calculatePercentage = (marks, totalMarks) => {
@@ -20,17 +20,8 @@ export const calculatePercentage = (marks, totalMarks) => {
 export const useResultState = (initialResult) => {
   const [currentResult, setCurrentResult] = useState(initialResult);
 
-  // Perform auto-calculations when inputs change
-  useEffect(() => {
-    updateCalculations();
-  }, [
-    currentResult.summary?.totalStudents,
-    currentResult.summary?.passed,
-    currentResult.data,
-  ]);
-
-  // Update calculated fields like percentages and position details
-  const updateCalculations = () => {
+  // Define updateCalculations with useCallback to prevent it from changing on every render
+  const updateCalculations = useCallback(() => {
     const { totalStudents, passed } = currentResult.summary || {};
 
     let updatedResult = { ...currentResult };
@@ -111,7 +102,12 @@ export const useResultState = (initialResult) => {
     if (JSON.stringify(updatedResult) !== JSON.stringify(currentResult)) {
       setCurrentResult(updatedResult);
     }
-  };
+  }, [currentResult]);
+
+  // Perform auto-calculations when inputs change
+  useEffect(() => {
+    updateCalculations();
+  }, [updateCalculations]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
