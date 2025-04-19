@@ -1,5 +1,19 @@
 // src/routes/index.jsx
-import React, { lazy } from "react";
+import React, { lazy, Suspense } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Box, Alert } from "@mui/material";
+import Loader from "../components/common/Loader";
+import ErrorBoundary from "../components/common/ErrorBoundary";
+import Navbar from "../components/common/Navbar";
+import Footer from "../components/common/Footer";
+import ScrollToTop from "../components/common/ScrollToTop";
+import Houses from "../components/student/Houses";
+import AdminLayout from "../components/admin/AdminLayout";
+import ProtectedRoute from "../admin/ProtectedRoute";
+import { useConvexAvailable } from "../utils/ConvexClientProvider";
+import { AdminAuthProvider } from "../contexts/AdminAuthContext";
+import { AuthProvider } from "../contexts/AuthContext";
+
 // Lazy load pages to improve initial load performance
 const HomePage = lazy(() => import("../pages/HomePage"));
 const AboutPage = lazy(() => import("../pages/AboutPage"));
@@ -8,6 +22,7 @@ const StaffPage = lazy(() => import("../pages/StaffPage"));
 const StudentZonePage = lazy(() => import("../pages/StudentZonePage"));
 const GalleryPage = lazy(() => import("../pages/GalleryPage"));
 const ContactPage = lazy(() => import("../pages/ContactPage"));
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 // Admin Pages
 const LoginPage = lazy(() => import("../pages/admin/LoginPage"));
@@ -19,17 +34,19 @@ const AdminScholarshipsPage = lazy(
   () => import("../pages/admin/ScholarshipsPage")
 );
 const AdminGalleryPage = lazy(() => import("../pages/admin/GalleryPage"));
+const TeachingStaffPage = lazy(
+  () => import("../pages/admin/TeachingStaffPage")
+);
+const NonTeachingStaffPage = lazy(
+  () => import("../pages/admin/NonTeachingStaffPage")
+);
+const HousesPage = lazy(() => import("../pages/admin/HousesPage"));
 
 // Nested route components
 const AboutDAV = lazy(() => import("../components/about/AboutDAV"));
 const VisionMission = lazy(() => import("../components/about/VisionMission"));
 const Facilities = lazy(() => import("../components/about/Facilities"));
-const TeachingStaff = lazy(
-  () => import("../components/administration/TeachingStaff")
-);
-const NonTeachingStaff = lazy(
-  () => import("../components/administration/NonTeachingStaff")
-);
+
 const AdmissionRules = lazy(
   () => import("../components/admission/AdmissionRules")
 );
@@ -37,152 +54,108 @@ const FeeStructure = lazy(() => import("../components/admission/FeeStructure"));
 const Scholarship = lazy(() => import("../components/student/Scholarship"));
 const Results = lazy(() => import("../components/student/Results"));
 
-// Admin Layout and ProtectedRoute
-const AdminLayout = lazy(() => import("../components/admin/AdminLayout"));
-const ProtectedRoute = lazy(() => import("../admin/ProtectedRoute"));
+// Admin Routes Component
+function AdminRoutes() {
+  const isConvexAvailable = useConvexAvailable();
 
-// 404 Not Found Page Component
-const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
+  if (!isConvexAvailable) {
+    return (
+      <Box sx={{ p: 4, maxWidth: "800px", mx: "auto", mt: 4 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Admin panel is currently unavailable. Please check your connection to
+          the backend service.
+        </Alert>
+        <Box sx={{ mt: 2, textAlign: "center" }}>
+          <Navigate to="/" replace />
+        </Box>
+      </Box>
+    );
+  }
 
-export const routes = [
-  {
-    path: "/",
-    element: <HomePage />,
-  },
-  {
-    path: "/about",
-    element: <AboutPage />,
-    children: [
-      {
-        path: "",
-        element: <AboutDAV />, // Default child route
-      },
-      {
-        path: "about-dav", // This matches the Navbar item "About DAV Mandi"
-        element: <AboutDAV />,
-      },
-      {
-        path: "vision-mission",
-        element: <VisionMission />,
-      },
-      {
-        path: "facilities",
-        element: <Facilities />,
-      },
-    ],
-  },
-  {
-    path: "/administration",
-    element: <StaffPage />,
-    children: [
-      {
-        path: "", // Default child route
-        element: <TeachingStaff />,
-      },
-      {
-        path: "teaching-staff",
-        element: <TeachingStaff />,
-      },
-      {
-        path: "non-teaching-staff",
-        element: <NonTeachingStaff />,
-      },
-    ],
-  },
-  {
-    path: "/admission",
-    element: <AdmissionPage />,
-    children: [
-      {
-        path: "", // Default child route
-        element: <AdmissionRules />,
-      },
-      {
-        path: "rules",
-        element: <AdmissionRules />,
-      },
-      {
-        path: "fee-structure",
-        element: <FeeStructure />,
-      },
-    ],
-  },
-  {
-    path: "/student-zone",
-    element: <StudentZonePage />,
-    children: [
-      {
-        path: "", // Default child route
-        element: <Scholarship />,
-      },
-      {
-        path: "scholarship",
-        element: <Scholarship />,
-      },
-      {
-        path: "results",
-        element: <Results />,
-      },
-    ],
-  },
-  {
-    path: "/gallery",
-    element: <GalleryPage />,
-  },
-  {
-    path: "/contact",
-    element: <ContactPage />,
-  },
+  return (
+    <AdminAuthProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="news" element={<AdminNewsPage />} />
+            <Route path="results" element={<AdminResultsPage />} />
+            <Route path="scholarships" element={<AdminScholarshipsPage />} />
+            <Route path="gallery" element={<AdminGalleryPage />} />
+            <Route path="houses" element={<HousesPage />} />
+            <Route path="teaching-staff" element={<TeachingStaffPage />} />
+            <Route
+              path="non-teaching-staff"
+              element={<NonTeachingStaffPage />}
+            />
+          </Route>
+        </Route>
+      </Routes>
+    </AdminAuthProvider>
+  );
+}
 
-  // Admin Routes
-  {
-    path: "/admin/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/admin/signup",
-    element: <SignupPage />,
-  },
-  {
-    path: "/admin",
-    element: <ProtectedRoute />,
-    children: [
-      {
-        path: "",
-        element: <AdminLayout />,
-        children: [
-          {
-            path: "",
-            element: <DashboardPage />,
-          },
-          {
-            path: "dashboard",
-            element: <DashboardPage />,
-          },
-          {
-            path: "news",
-            element: <AdminNewsPage />,
-          },
-          {
-            path: "results",
-            element: <AdminResultsPage />,
-          },
-          {
-            path: "scholarships",
-            element: <AdminScholarshipsPage />,
-          },
-          {
-            path: "gallery",
-            element: <AdminGalleryPage />,
-          },
-        ],
-      },
-    ],
-  },
+// Public Routes Component
+function PublicRoutes() {
+  return (
+    <AuthProvider>
+      <Navbar />
+      <Box sx={{ flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
 
-  // 404 Route
-  {
-    path: "*",
-    element: <NotFoundPage />,
-  },
-];
+          <Route path="/about" element={<AboutPage />}>
+            <Route index element={<AboutDAV />} />
+            <Route path="about-dav" element={<AboutDAV />} />
+            <Route path="vision-mission" element={<VisionMission />} />
+            <Route path="facilities" element={<Facilities />} />
+          </Route>
+          <Route path="/admission" element={<AdmissionPage />}>
+            <Route index element={<AdmissionRules />} />
+            <Route path="rules" element={<AdmissionRules />} />
+            <Route path="fee-structure" element={<FeeStructure />} />
+          </Route>
+
+          <Route path="/student-zone" element={<StudentZonePage />}>
+            <Route index element={<Scholarship />} />
+            <Route path="scholarship" element={<Scholarship />} />
+            <Route path="results" element={<Results />} />
+            <Route path="houses" element={<Houses />} />
+          </Route>
+
+          <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Box>
+      <Footer />
+    </AuthProvider>
+  );
+}
+
+// Main Routes Component
+export function AppRoutes() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <ScrollToTop />
+      <Suspense fallback={<Loader />}>
+        <ErrorBoundary>
+          {isAdminRoute ? (
+            <Box sx={{ flex: 1 }}>
+              <AdminRoutes />
+            </Box>
+          ) : (
+            <PublicRoutes />
+          )}
+        </ErrorBoundary>
+      </Suspense>
+    </Box>
+  );
+}

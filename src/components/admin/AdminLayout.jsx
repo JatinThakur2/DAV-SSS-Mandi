@@ -116,6 +116,16 @@ function AdminLayout() {
       icon: <HomeIcon />, // You can use a different icon if preferred
       path: "/admin/houses",
     },
+    {
+      text: "teaching Staff",
+      icon: <SchoolIcon />, // You can use a different icon if preferred
+      path: "/admin/teaching-staff",
+    },
+    {
+      text: "non-teaching Staff",
+      icon: <SchoolIcon />, // You can use a different icon if preferred
+      path: "/admin/non-teaching-staff",
+    },
   ];
 
   const isActive = (path) => location.pathname === path;

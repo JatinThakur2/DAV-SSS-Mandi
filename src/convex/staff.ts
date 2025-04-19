@@ -26,7 +26,7 @@ export const getTeachingStaff = query({
       }
 
       // Then by designation precedence (Principal first, etc.)
-      const designationPriority = (designation) => {
+      const designationPriority = (designation: string): number => {
         if (designation.includes("Principal")) return 0;
         if (designation.includes("Vice Principal")) return 1;
         if (designation.includes("PGT")) return 2;
@@ -120,7 +120,7 @@ export const getNonTeachingStaff = query({
       }
 
       // Then by designation precedence
-      const designationPriority = (designation) => {
+      const designationPriority = (designation: string): number => {
         if (designation.includes("Incharge")) return 0;
         if (designation.includes("Assistant")) return 1;
         return 2;

@@ -12,7 +12,7 @@ import { ThemeProvider, CssBaseline, Box, Alert } from "@mui/material";
 import theme from "./themes/theme";
 
 // Import common components
-import Navbar from "./components/common/Navbar";
+import Navbar from "./components/common/navbar/index";
 import Footer from "./components/common/Footer";
 import ScrollToTop from "./components/common/ScrollToTop";
 import Loader from "./components/common/Loader";
@@ -35,7 +35,7 @@ import ProtectedRoute from "./admin/ProtectedRoute";
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const AboutPage = React.lazy(() => import("./pages/AboutPage"));
 const AdmissionPage = React.lazy(() => import("./pages/AdmissionPage"));
-const StaffPage = React.lazy(() => import("./pages/StaffPage"));
+
 const StudentZonePage = React.lazy(() => import("./pages/StudentZonePage"));
 const GalleryPage = React.lazy(() => import("./pages/GalleryPage"));
 const ContactPage = React.lazy(() => import("./pages/ContactPage"));
@@ -65,12 +65,6 @@ const VisionMission = React.lazy(
 );
 const Facilities = React.lazy(() => import("./components/about/Facilities"));
 
-const TeachingStaff = React.lazy(
-  () => import("./components/administration/TeachingStaff")
-);
-const NonTeachingStaff = React.lazy(
-  () => import("./components/administration/NonTeachingStaff")
-);
 const AdmissionRules = React.lazy(
   () => import("./components/admission/AdmissionRules")
 );
@@ -144,15 +138,6 @@ function PublicRoutes() {
                 <Route path="about-dav" element={<AboutDAV />} />
                 <Route path="vision-mission" element={<VisionMission />} />
                 <Route path="facilities" element={<Facilities />} />
-              </Route>
-
-              <Route path="/administration" element={<StaffPage />}>
-                <Route index element={<TeachingStaff />} />
-                <Route path="Teaching-Staff" element={<TeachingStaff />} />
-                <Route
-                  path="Non-teaching-staff"
-                  element={<NonTeachingStaff />}
-                />
               </Route>
 
               <Route path="/admission" element={<AdmissionPage />}>
